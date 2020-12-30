@@ -11,9 +11,9 @@ public interface RISC1Core {
      int get(int register) throws PanicException;
      void set(int register, int i) throws PanicException;
 
-     void halt();
+    void halt();
 
-     int inputInt();
-     void outputInt(int i);
+    int inputInt() throws PanicException;
+    void outputInt(int i);
 
 }

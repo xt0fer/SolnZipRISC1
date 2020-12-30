@@ -25,8 +25,36 @@ public class Simulator {
     }
 
     private void load(String executable_filename) throws PanicException {
-        // see if executable_filename exists.
         // open and load each line.
+        java.io.BufferedReader reader;
+		try {
+			reader = new java.io.BufferedReader(new java.io.FileReader(
+                executable_filename));
+			String line = reader.readLine();
+			while (line != null) {
+                this.loadMemory(line);
+                // read next line
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (java.io.IOException e) {
+			e.printStackTrace();
+		}
+    }
+
+    private void loadMemory(String line) throws PanicException {
+        // line should be in this format:
+        // hexmem_address byte0 byte1 byte2 byte3 // comments
         
+        String[] tokens = line.split("\\s+");
+        if (tokens.length < 5)
+            throw new PanicException("corrupted line in file.");
+        int aa = Integer.decode(tokens[0]);
+        Word w = new Word(Integer.parseInt(tokens[1], 16),
+        Integer.parseInt(tokens[2], 16),
+        Integer.parseInt(tokens[3], 16),
+        Integer.parseInt(tokens[4], 16));
+
+        this.cpu.store(aa, w);
     }
 }

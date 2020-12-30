@@ -2,47 +2,53 @@
 
 v1.0
 
-The ZipCode RISC-1 microprocessor needs a simulator to prove to the investors that this is a world-beating design an Intel/Amd and apple will all shake in their shoes when they see how fast and clean and cool this processor is.
+The ZipCode RISC-1 microprocessor needs a simulator to prove to the investors that this is a world-beating design that Intel, AMD and Apple will all shake in their shoes when they see how fast and clean and cool this processor is.
 
-You need to write a processor simulator. It reads in a file of machine code, loads it into memory and starts execution. The simulation continues until either a CRASH or a completion of the program.
+You need to write a processor simulator. It reads in a file of machine code (.zex file), loads it into memory and starts execution. The simulation continues until either a CRASH or a completion of the program.
+When you start the program, you execute the instruction found at memory location 0x0000. 
 
-- registers: 16 32-bit named x0 to xF (PC is xF, IC is xE) (x0 is ALWAYS zero)
+Each memory location is a 32-bit "word" made up of 4 "bytes". Each byte can only contain numbers from 0-255.
+
+There are 16 registers, numbered 0 to 15 (or x0 to xF). Register 15 (F) is used as the Program Counter (PC). It contains the address of the next instruction to be executed. Register 14 is the Instruction Register. It is the place where the current instruction is placed just before it is executed. The processor runs a program from 0x0000 until it told to halt (HLT). When it is told to HALT, and no errors have occurred, you can consider your program to have "run".
+
+So this lab/project has you implementing code for our ZipRISC1 processor. We have provided a simple version of the main loop of the simulator which onlt implements HLT. You must implement the rest of the instructions.
+
+We have also provide a very stupid, simple "assembler" which can translate ZipRISC1 Assembly (.zas file) code file (UTF-8 text) (and human readable-ish) into the ZipRISC1 executable format (.zex) (which is a UTF-* text file the simulator's loader can load into the the processor's memory.)
+
+The assembly file is a program file which tries to do some kind of simple task. 
+Each line is one of four possible layouts, and if you mess up the layout, well, you get a very simple error message. The assembler quits as soon as it finds an error, or runsuntil the input runs out, and then drops the output file. You then start the simulator on the output of the assembler and see what happens. You may get some output, an error, or maybe even a Panic. Panics are bad. Panics mean someting is very wrong with something you're trying to do.
+
+### To RECAP
+
+- registers: 16 32-bit named x0 to xF (PC is xF, IR is xE) (x0 is ALWAYS zero)
+  - numbered 0 to 15
 - memory: 0x0000 - 0xFFFF (16K words!! (or 64Kbytes))
 - I/O: input/output (special registers)
 - instruction: 4 bytes, 0, 1, 2, 3
   - opcode, operand1, operand2, operand3
 
-## Instructions
+## ZipRISC1 Instructions
 
-The first column is the “assembly code”, 2nd is the memory layout, third is “meaning”
+The first column is the “assembly code”, 2nd is the memory layout of the instruction (4 bytes), third is “meaning” in psuedo-code.
 
 ### Core Instructions
 
-ADD rd, rs, rt | 1dst | rd <- rs + rt
-
-MOV rd, rs, 0 | 1ds0 | rd <- rs
-
-SUB rd, rs, rt | 2dst | rd <- rs - rt
-
-SUBI rd, rs, k | 3dsk | rd ← rs - k
-
-LSH rd, rs, k | 4dsk | rd <- rs / k ??
-
-RSH rd, rs, k | 5dsk | rd <- rs * k ??
-
-BRZ rd, aa | 6daa | branch to aa on rd == 0
-
-BGT rd, aa | 7daa | branch to aa on rd > 0
-
-LD rd, aa | 8daa | load rd with value of memory loc aa
-
-ST rs, aa | 9saa | store rd value to memory loc aa
-
-HLT | 0000 | halt.
-
-HCF | 0FFF | halt and catch fire.
+- ADD rd, rs, rt | 1dst | rd <- rs + rt
+- MOV rd, rs, 0 | 1ds0 | rd <- rs
+- SUB rd, rs, rt | 2dst | rd <- rs - rt
+- SUBI rd, rs, k | 3dsk | rd ← rs - k
+- LSH rd, rs, k | 4dsk | rd <- rs / k ??
+- RSH rd, rs, k | 5dsk | rd <- rs * k ??
+- BRZ rd, aa | 6daa | branch to aa on rd == 0
+- BGT rd, aa | 7daa | branch to aa on rd > 0
+- LD rd, aa | 8daa | load rd with value of memory loc aa
+- ST rs, aa | 9saa | store rd value to memory loc aa
+- HLT | 0000 | halt.
+- HCF | 0FFF | halt and catch fire.
 
 ### Pseudo Instructions
+
+These are just handy, the text in the first column gets translated to the instruction in the second column.
 
 MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
 CLR rd │ ADD rd, x0, x0 │ rd ← 0
@@ -55,7 +61,7 @@ DUMP | F000 | print out registers, machine state and memory
 
 ### Directives
 
-Directives included
+Directives included help layout code in the memory. They are kind like macros.
 
 .EQ equate for defining decimal constants
 
@@ -94,23 +100,83 @@ Directives included
 .BS 64
 ```
 
+.WD load next memory word with decimal number
+
+```
+.WD 2
+```
+
 ### Sample Programs
 
-#### Example program
+#### Add 2 plus 2
 
-loop:LD x1, 90LD x2, 90ADD x1, x2ST x1, 91BRA loop
+```
+.OR 0x0000 // start at address zero
+    BRA start
+two:
+.WD 2
+start:
+    LD x1, two
+    LD x2, two
+    ADD x1, x1, x2
+    DUMP
+```
+The output from zas of this file would be a UTF-8 file of hex numbers.
 
-doubles value at aa 90
+```
+0x0000 06 00 00 02 // BRA start
+0x0001 00 00 00 02 // two = 2 (two is 0x0001)
+0x0002 08 01 00 02 // LD x1, two
+0x0003 08 02 00 02 // LD x2, two
+0x0004 01 01 01 02 // ADD
+0x0005 f0 00 00 00 // dump
+0x0006 00 00 00 00 // HLT
+```
 
-loop:LD x1, 90ADD x1, x1OUT x1BRA loop
+
+#### Get two numbers and print their sum.
+
+```
+loop:
+    IN x1
+    IN x2
+    ADD x1, x2
+    OUT x1
+    BRA loop
+```
+
+
+read in a number and double it
+
+```
+loop:
+    IN x1
+    ADD x1, x1
+    OUT x1
+    BRA loop
+```
 
 multiply by 8, value at aa 90
 
+```
 loop:LD x1, 90ADD x1, x1ADD x1, x1ADD x1, x1ST x1, 91BRA loop
+```
 
 Max function (read two inputs, output the larger of the two)
 
-loop:LD x1, 90LD x2, 90SUB x1, x1, x2 // x1 <- x1 - x2BGT x1, first // if x1 > 0 goto first:second:ST x2, 91BRA loopfirst:OUT x1BRA loop
+```
+loop:
+    IN x1
+    IN x2
+    SUB x1, x1, x2 // x1 <- x1 - x2
+    BGT x1, first // if x1 > 0 goto first:
+second:
+    ST x2, 91
+    BRA loop
+first:
+    OUT x1
+    BRA loop
+```
 
 Build me a Guess the Number program?
 
@@ -154,3 +220,4 @@ Main Processor Data Structures
 - input word
 - output word
 
+You get to graduate from ZipCode early if you write a C compiler for this processor. Several corporate partners may actually compete to hire you for bigger than normal money if you manage that.

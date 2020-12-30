@@ -8,7 +8,7 @@ public class CPU implements RISC1Core {
 
     private int inputWord = 0;
     private int outputWord = 0;
-    private int statusWord = 0;
+    int statusWord = 0;
     
     public CPU() {
 
@@ -80,6 +80,17 @@ public class CPU implements RISC1Core {
     @Override
     public void halt() {
         // just stop already.
+    }
+
+    @Override
+    public int inputInt() {
+        // TODO input routine
+        return 0;
+    }
+
+    @Override
+    public void outputInt(int i) {
+        // TODO output routine
     }
 
 }

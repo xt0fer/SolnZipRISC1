@@ -13,4 +13,7 @@ public interface RISC1Core {
 
      void halt();
 
+     int inputInt();
+     void outputInt(int i);
+
 }

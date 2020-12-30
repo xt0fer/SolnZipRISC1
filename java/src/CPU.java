@@ -35,16 +35,51 @@ public class CPU implements RISC1Core {
         }
     }
 
-    @Override
-    public void store(int address, Word value) {
-        // TODO Auto-generated method stub
-
+    private void checkAddress(int address) throws PanicException {
+        if (address < 0 || address > memoryLimit)
+            throw new PanicException("address out of range");
     }
 
     @Override
-    public void fetch(int address, Word value) {
-        // TODO Auto-generated method stub
+    public void store(int address, Word w) throws PanicException {
+        this.checkAddress(address);
+        memory[address] = w;
+    }
 
+
+    @Override
+    public Word fetch(int address) throws PanicException {
+        this.checkAddress(address);
+        return memory[address];
+    }
+
+    @Override
+    public void wset(int register, Word w) {
+        int i = w.getInt();
+        this.set(register, i);
+    }
+
+    @Override
+    public Word wget(int register) {
+        Word w = new Word(this.get(register));
+        return w;
+    }
+
+    @Override
+    public int get(int r) {
+        if (r == 0) return 0;
+        return this.registerFile[r].r;
+    }
+
+    @Override
+    public void set(int r, int i) {
+        if (r == 0) return ;
+        this.registerFile[r].r = i;
+    }
+
+    @Override
+    public void halt() {
+        // just stop already.
     }
 
 }

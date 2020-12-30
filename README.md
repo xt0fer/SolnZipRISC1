@@ -8,7 +8,9 @@ Just ask permission if you want to do it in something other than Java or Python.
 The ZipCode RISC-1 microprocessor needs a simulator to prove to the investors that this is a world-beating design that Intel, AMD and Apple will all shake in their shoes when they see how fast and clean and cool this processor is.
 
 It has a simple internal core architecture, and a simple set of instructions. 
-It is "turing-complete".
+It is "turing-complete". This processor is a little (very little) like the new Apple Silicon M1s, in that it has memory side-by-each with the registers (as in the memory is inside of the CPU)
+.
+Its memory is not a separate subsystem.
 
 You need to write a processor simulator. It reads in a file of machine code (.zex file), loads it into memory and starts execution. The simulation continues until either a CRASH or a completion of the program.
 When you start the program, you execute the instruction found at memory location 0x0000. 

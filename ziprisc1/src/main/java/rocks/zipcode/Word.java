@@ -12,6 +12,13 @@ package rocks.zipcode;
 public class Word {
     int[] b = new int[4];
 
+	public Word() {
+		this.b[3] = 0;
+		this.b[2] = 0;
+		this.b[1] = 0;
+		this.b[0] = 0;
+	}
+	
 	public Word(int i) {
 		this.b[3] = i & 0x000000FF;
 		this.b[2] = (i & 0x0000FF00) >> 8;

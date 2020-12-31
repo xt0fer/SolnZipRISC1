@@ -137,7 +137,7 @@ The output from zas of this file would be a UTF-8 file of hex numbers.
 0x0002 08 01 00 02 // LD x1, two
 0x0003 08 02 00 02 // LD x2, two
 0x0004 01 01 01 02 // ADD
-0x0005 f0 00 00 00 // dump
+0x0005 0C 00 00 00 // dump
 0x0006 00 00 00 00 // HLT
 ```
 

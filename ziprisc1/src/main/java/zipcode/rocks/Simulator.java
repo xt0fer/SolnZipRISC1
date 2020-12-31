@@ -6,16 +6,17 @@ public class Simulator {
     }
 
     public static void main(String[] args) {
-        Simulator s = new Simulator(new CPU());
-        if (args.length > 1) {
+        Simulator s = new Simulator(new CPU(0x0));
+        System.out.println("**** start simulation.");
+        //if (args.length > 1) {
             try {
-                s.load(args[1]);
+                s.load("a.zex"); // s.load(args[1]);
                 s.run();
             } catch (PanicException e) {
                 e.printStackTrace();
                 java.lang.System.exit(-1);
             }    
-        }
+        //}
         java.lang.System.exit(0);
     }
 
@@ -32,6 +33,7 @@ public class Simulator {
                 executable_filename));
 			String line = reader.readLine();
 			while (line != null) {
+                System.out.println(line);
                 this.loadMemory(line);
                 // read next line
 				line = reader.readLine();

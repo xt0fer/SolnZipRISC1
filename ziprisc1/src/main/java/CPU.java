@@ -66,31 +66,31 @@ public class CPU implements RISC1Core {
     public void wset(int register, Word w) {
         int i = w.getInt();
         if (register == 0xE) {
-            this.instruction.set(i);
-            System.err.printf("instruction: [%s]\n", this.instruction.toString());            
+            instruction.set(i);
+            System.err.printf("instruction: [%s]\n", instruction.toString());
         }
         this.set(register, i);
     }
 
     public int opcode() {
-        return this.instruction.opcode();
+        return instruction.opcode();
     }
 
     public int arg1() {
-        return this.instruction.arg1();
+        return instruction.arg1();
     }
     
     public int arg2() {
-        return this.instruction.arg2();
+        return instruction.arg2();
     }
     
     public int arg3() {
-        return this.instruction.arg3();
+        return instruction.arg3();
     }
     
     @Override
     public Word wget(int register) {
-        return new Word(this.get(register));
+        return new Word(get(register));
     }
 
     @Override
@@ -140,11 +140,11 @@ public class CPU implements RISC1Core {
         }
         i = 0;
         System.err.println("==== Memory");
-        for (Word w : this.memory) {
+        for (Word w : memory) {
             if (w.isZero() == false) {
                 System.err.printf("0x%04X - %s\n", i, w.toString() );
             }
-            i++;            
+            i++;
         }
     }
 }

@@ -6,7 +6,12 @@ public interface RISC1Core {
      Word fetch(int address) ;
 
      void wset(int register, Word w) ;
-     Word wget(int register) ;
+
+    default Word wget() {
+         return wget();
+     }
+
+    Word wget(int register) ;
 
      int get(int register) ;
      void set(int register, int i) ;

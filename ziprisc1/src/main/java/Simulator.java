@@ -1,8 +1,10 @@
+import Word;
+
 public class Simulator {
     private CPU cpu;
 
     public Simulator(CPU cpu) {
-        this.cpu = cpu;
+        cpu = cpu;
     }
 
     public static void main(String[] args) {
@@ -57,6 +59,6 @@ public class Simulator {
         Integer.parseInt(tokens[3], 16),
         Integer.parseInt(tokens[4], 16));
 
-        this.cpu.store(aa, w);
+        cpu.store(aa, w);
     }
 }

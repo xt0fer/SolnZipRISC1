@@ -25,9 +25,10 @@ public class Engine {
         
         cpu.statusWord = 0; // running
         while (cpu.statusWord == 0) {
-            int aa = cpu.get(CPU.PC);
-            Word tw = cpu.fetch(aa);
-            cpu.wset(CPU.IR, tw);
+            // int aa = cpu.get(CPU.PC);
+            // Word tw = cpu.fetch(cpu.get(CPU.PC));
+
+            cpu.wset(CPU.IR, cpu.fetch(cpu.get(CPU.PC)));
             cpu.set(CPU.PC, cpu.get(CPU.PC)+1);
 
             this.decodeAndExecute(cpu.opcode(),
@@ -61,7 +62,9 @@ public class Engine {
         }
     }
     
+    // Instruction Implementations.
 
+    // LD
     private void loadFromMemory(int arg1, int arg2, int arg3) {
         int address = makeAddress(arg2, arg3);
         Word tw = new Word(0);
@@ -71,14 +74,15 @@ public class Engine {
             e.printStackTrace();
         }
         cpu.wset(arg1, tw);
-
     }
 
+    // ADD
     private void add(int arg1, int arg2, int arg3) {
         int t = cpu.get(arg2) + cpu.get(arg3);
         cpu.set(arg1, t);
     }
 
+    // BRZ
     private void branchOnZero(int arg1, int arg2, int arg3) {
         int address = makeAddress(arg2, arg3);
         if (cpu.get(arg1)==0) {
@@ -86,6 +90,7 @@ public class Engine {
         }
     }
 
+    // make the two argument bytes into one 16bit address.
     private int makeAddress(int arg2, int arg3) {
         int addr = ((arg2 & 0x0000FF00) | (arg3 & 0x000000FF));
         if (addr < 0 || addr >= CPU.MEMORY_LIMIT) {

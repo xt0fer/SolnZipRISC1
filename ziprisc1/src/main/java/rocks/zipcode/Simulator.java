@@ -12,9 +12,15 @@ public class Simulator {
     public static void main(String[] args) {
         Simulator s = new Simulator(new CPU(0x0));
         System.err.println("**** ZipRISC1 simulation ****\n");
-        if (args.length > 1) {
+        System.err.print("args ");
+        for (String arg : args) {
+            System.out.print(" ");
+            System.out.print(arg);
+        }
+        System.err.println();
+        if (args.length == 1) {
             try {
-                s.loadZEXFile(args[1]); // s.load();
+                s.loadZEXFile(args[0]); // s.load();
                 s.run();
             } catch (Panic e) {
                 e.printStackTrace();

@@ -1,5 +1,14 @@
 package rocks.zipcode;
 
+// class Word is a tricky little bit of code.
+// it mimics a 32 bit word that is also an array of 4 bytes.
+// the tricky bit is the way the bytes get bitwise-and'd and or'd in and out
+// of a single integer which the word can represent.
+//
+// make sure you DO NOT set the high bit - otherwise when you shift right, the two's complement
+// bit (the negative bit) gets replicated...
+// like I say, a bit tricky.
+//
 public class Word {
     int[] b = new int[4];
 

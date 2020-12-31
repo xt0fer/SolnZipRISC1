@@ -5,8 +5,9 @@ import java.lang.System;
 
 public class CPU implements RISC1Core {
 
-    final static int PC = 0xF;
-    final static int IR = 0xE;
+    // convenience constants for the last two registers 
+    final static int PC = 0xF; // Program Counter
+    final static int IR = 0xE; // Instruction Decode Register
 
     private Integer[] registerFile = new Integer[16];
 
@@ -22,6 +23,8 @@ public class CPU implements RISC1Core {
         this(0);
     }
 
+    // initial all registers to a specific value
+    // zero out memory
     public CPU(int rinit) {
         for (int i=0; i < 16; i++) {
             registerFile[i] = rinit;
@@ -32,6 +35,8 @@ public class CPU implements RISC1Core {
 
     }
 
+    // CPU state manipulation
+    // primarily here for Engine's methods.
     public boolean isRunnable() {
         return (this.statusWord == 0);
     }
@@ -74,6 +79,8 @@ public class CPU implements RISC1Core {
         this.set(register, i);
     }
 
+    // convenience methods for Instruction decode.
+
     public int opcode() {
         return instruction.opcode();
     }
@@ -92,27 +99,29 @@ public class CPU implements RISC1Core {
     
     @Override
     public Word wget(int register) {
+        // TODO should this not create a new Word?
         return new Word(get(register));
     }
 
     @Override
     public int get(int r) {
-        if (r == 0)
-            return 0;
+        if (r == 0) return 0; //always return zero from Reg 0.
         return this.registerFile[r];
     }
 
     @Override
     public void set(int r, int i) {
-        if (r == 0)
-            return;
+        if (r == 0) return; // never allow reg 0 to be set.
         this.registerFile[r] = i;
     }
 
     @Override
     public void halt() {
         // just stop already.
+        this.haltCPU();
     }
+
+    // IO routines
 
     @Override
     public int inputInt()  {
@@ -120,9 +129,8 @@ public class CPU implements RISC1Core {
         try {
             this.inputWord = System.in.read();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
-            throw new Panic("IO Exception fron Java");
+            throw new Panic("input failed.");
         }
         return inputWord;
     }
@@ -137,7 +145,9 @@ public class CPU implements RISC1Core {
         System.err.println("==== Registers");
         int i = 0;
         for (Integer reg : this.registerFile) {
-            System.err.printf("%X - %08X - %d\n", i, reg, reg );
+            if (reg != 0) {
+                System.err.printf("%X - %08X - %d\n", i, reg, reg );
+            }
             i++;
         }
         i = 0;

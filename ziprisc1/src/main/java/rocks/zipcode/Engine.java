@@ -1,5 +1,10 @@
 package rocks.zipcode;
 
+/* this Engine should be the 
+ * "microcode" runner, the object that 
+ * does all the actual work 
+ * of the processor */
+
 public class Engine {
 
     private CPU cpu = null;
@@ -37,6 +42,13 @@ public class Engine {
         this.cpu.dumpState();
 	}
 
+    // this isone of those pieces of code that doesn't get more "clean"
+    // when you break it up into smaller and smaller implementations.
+    // In the case of a whole boatload of options of what the opcode could be,
+    // keeping them all in one large method is really the only thing that works.
+    // Unless, heh heh, you want to do a map of functions (lambdas).
+    //
+    // decodeAndExecute the instruction held currently in CPU.IR
     private void decodeAndExecute(int opcode, int arg1, int arg2, int arg3) {
         switch (opcode) {
             case Engine.HLT:
@@ -97,8 +109,6 @@ public class Engine {
         }
         return addr;
     }
-
-/* the engine should be the "microcode" runner, the object that does all the actual work of the processor */
 
 
 }

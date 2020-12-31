@@ -1,5 +1,7 @@
 package rocks.zipcode;
 
+import java.io.File;
+
 public class Simulator {
     private CPU cpu;
 
@@ -9,16 +11,19 @@ public class Simulator {
 
     public static void main(String[] args) {
         Simulator s = new Simulator(new CPU(0x0));
-        System.err.println("**** start simulation.");
-        //if (args.length > 1) {
+        System.err.println("**** ZipRISC1 simulation ****\n");
+        if (args.length > 1) {
             try {
-                s.load("a.zex"); // s.load(args[1]);
+                s.loadZEXFile(args[1]); // s.load();
                 s.run();
             } catch (Panic e) {
                 e.printStackTrace();
                 java.lang.System.exit(-1);
             }    
-        //}
+        } else {
+            System.err.println("no input file.");
+            java.lang.System.exit(-1);
+        }
         java.lang.System.exit(0);
     }
 
@@ -27,7 +32,10 @@ public class Simulator {
         engine.startAt(0x0000);
     }
 
-    private void load(String executable_filename)  {
+    private void loadZEXFile(String executable_filename)  {
+        File tempFile = new File(executable_filename);
+        if (tempFile.exists() != true)
+            throw new Panic("Panic: input executable file not found");
         // open and load each line.
         java.io.BufferedReader reader;
 		try {
@@ -48,7 +56,7 @@ public class Simulator {
 
     private void loadMemory(String line)  {
         // line should be in this format:
-        // hexmem_address byte0 byte1 byte2 byte3 // comments
+        // hex_memory_address byte0 byte1 byte2 byte3 // comments
         
         String[] tokens = line.split("\\s+");
         if (tokens.length < 5)

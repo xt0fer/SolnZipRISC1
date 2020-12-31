@@ -128,6 +128,7 @@ start:
     LD x2, two
     ADD x1, x1, x2
     DUMP
+    HLT
 ```
 The output from zas of this file would be a UTF-8 file of hex numbers.
 

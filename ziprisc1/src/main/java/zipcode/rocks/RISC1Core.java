@@ -2,18 +2,18 @@
 
 public interface RISC1Core {
 
-     void store(int address, Word w) throws PanicException;
-     Word fetch(int address) throws PanicException;
+     void store(int address, Word w) ;
+     Word fetch(int address) ;
 
-     void wset(int register, Word w) throws PanicException;
-     Word wget(int register) throws PanicException;
+     void wset(int register, Word w) ;
+     Word wget(int register) ;
 
-     int get(int register) throws PanicException;
-     void set(int register, int i) throws PanicException;
+     int get(int register) ;
+     void set(int register, int i) ;
 
     void halt();
 
-    int inputInt() throws PanicException;
+    int inputInt() ;
     void outputInt(int i);
 
 }

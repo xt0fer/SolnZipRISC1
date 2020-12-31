@@ -42,7 +42,7 @@ public class Engine {
         this.cpu.dumpState();
 	}
 
-    // this isone of those pieces of code that doesn't get more "clean"
+    // this is one of those pieces of code that doesn't get more "clean"
     // when you break it up into smaller and smaller implementations.
     // In the case of a whole boatload of options of what the opcode could be,
     // keeping them all in one large method is really the only thing that works.
@@ -105,7 +105,7 @@ public class Engine {
         int addr = ((arg2 & 0x0000FF00) | (arg3 & 0x000000FF));
         if (addr < 0 || addr >= CPU.MEMORY_LIMIT) {
             System.err.printf("Engine: Bad Address: %X \n", addr);
-            throw new Panic("Engine: makeAddress: made errorious address.");
+            throw new Panic("Engine: makeAddress: made incorrect address.");
         }
         return addr;
     }

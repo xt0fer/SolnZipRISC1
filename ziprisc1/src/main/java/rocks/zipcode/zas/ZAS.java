@@ -35,4 +35,7 @@ public class ZAS {
         java.lang.System.exit(0);
     }
 
+    public void parseFile(String filename) {
+
+    }
 }

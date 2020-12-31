@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 public class Engine {
 
     private CPU cpu = null;

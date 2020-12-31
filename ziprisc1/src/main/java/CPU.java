@@ -30,39 +30,34 @@ public class CPU implements RISC1Core {
 
     }
 
-    // CPU implementation.
+    public boolean isRunnable() {
+        return (this.statusWord == 0);
+    }
+    public boolean setRunnable() {
+        this.statusWord = 0;
+        return true;
+    }
+    public boolean haltCPU() {
+        this.statusWord = -1;
+        return true;
+    }
 
-    // public static enum R$ {
-    //     x0(0), x1(1), x2(2), x3(3), x4(4), x5(5), x6(6), x7(7), x8(8), x9(9), xA(10), xB(11), xC(12), xD(13), xE(14),
-    //     xF(15), IR(14), PC(15);
-
-    //     private int numVal;
-
-    //     R$(int numVal) {
-    //         this.numVal = numVal;
-    //     }
-
-    //     public int getNumVal() {
-    //         return numVal;
-    //     }
-    // }
-
-    private void checkAddress(int address) throws PanicException {
+    private void checkAddress(int address)  {
         if (address < 0 || address > MEMORY_LIMIT) {
-            System.out.printf("wrong address %04X %d\n", address, address);
+            System.err.printf("wrong address %04X %d\n", address, address);
             this.dumpState();
-            throw new PanicException("address out of range");
+            throw new Panic("address out of range");
         }
     }
 
     @Override
-    public void store(int address, Word w) throws PanicException {
+    public void store(int address, Word w)  {
         this.checkAddress(address);
         memory[address] = w;
     }
 
     @Override
-    public Word fetch(int address) throws PanicException {
+    public Word fetch(int address)  {
         this.checkAddress(address);
         return memory[address];
     }
@@ -72,7 +67,7 @@ public class CPU implements RISC1Core {
         int i = w.getInt();
         if (register == 0xE) {
             this.instruction.set(i);
-            System.out.printf("instruction: [%s]\n", this.instruction.toString());            
+            System.err.printf("instruction: [%s]\n", this.instruction.toString());            
         }
         this.set(register, i);
     }
@@ -118,14 +113,14 @@ public class CPU implements RISC1Core {
     }
 
     @Override
-    public int inputInt() throws PanicException {
+    public int inputInt()  {
         // TODO input routine
         try {
             this.inputWord = System.in.read();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            throw new PanicException("IO Exception fron Java");
+            throw new Panic("IO Exception fron Java");
         }
         return inputWord;
     }
@@ -133,21 +128,21 @@ public class CPU implements RISC1Core {
     @Override
     public void outputInt(int i) {
         // TODO output routine
-        System.out.print(outputWord);
+        System.err.print(outputWord);
     }
 
     public void dumpState() {
-        System.out.println("==== Registers");
+        System.err.println("==== Registers");
         int i = 0;
         for (Integer reg : this.registerFile) {
-            System.out.printf("%X - %08X - %d\n", i, reg, reg );
+            System.err.printf("%X - %08X - %d\n", i, reg, reg );
             i++;
         }
         i = 0;
-        System.out.println("==== Memory");
+        System.err.println("==== Memory");
         for (Word w : this.memory) {
             if (w.isZero() == false) {
-                System.out.printf("0x%04X - %s\n", i, w.toString() );
+                System.err.printf("0x%04X - %s\n", i, w.toString() );
             }
             i++;            
         }

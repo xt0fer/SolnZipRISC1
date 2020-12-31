@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 public class Engine {
 
     private CPU cpu = null;
@@ -16,17 +14,15 @@ public class Engine {
     public final static int DUMP = 0x0F;
     
 
-    public void startAt(int initial_address) throws PanicException {
+    public void startAt(int initial_address)  {
         if (initial_address >= CPU.MEMORY_LIMIT) {
-            throw new PanicException("memory violation");
+            throw new Panic("memory violation");
         }
 
         cpu.set(CPU.PC, initial_address);
         
-        cpu.statusWord = 0; // running
-        while (cpu.statusWord == 0) {
-            // int aa = cpu.get(CPU.PC);
-            // Word tw = cpu.fetch(cpu.get(CPU.PC));
+        cpu.setRunnable(); // running
+        while (cpu.isRunnable()) {
 
             cpu.wset(CPU.IR, cpu.fetch(cpu.get(CPU.PC)));
             cpu.set(CPU.PC, cpu.get(CPU.PC)+1);
@@ -42,7 +38,7 @@ public class Engine {
     private void decodeAndExecute(int opcode, int arg1, int arg2, int arg3) {
         switch (opcode) {
             case Engine.HLT:
-                cpu.statusWord = -1;
+                cpu.haltCPU();
                 break;
             case Engine.DUMP:
                 cpu.dumpState();
@@ -70,7 +66,7 @@ public class Engine {
         Word tw = new Word(0);
         try {
             tw = cpu.fetch(address);
-        } catch (PanicException e) {
+        } catch (Panic e) {
             e.printStackTrace();
         }
         cpu.wset(arg1, tw);
@@ -94,8 +90,8 @@ public class Engine {
     private int makeAddress(int arg2, int arg3) {
         int addr = ((arg2 & 0x0000FF00) | (arg3 & 0x000000FF));
         if (addr < 0 || addr >= CPU.MEMORY_LIMIT) {
-            System.out.printf("Engine: Bad Address: %X \n", addr);
-            throw new Error("Engine: makeAddress: made errorious address.");
+            System.err.printf("Engine: Bad Address: %X \n", addr);
+            throw new Panic("Engine: makeAddress: made errorious address.");
         }
         return addr;
     }

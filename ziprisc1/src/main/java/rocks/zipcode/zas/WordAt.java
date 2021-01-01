@@ -4,7 +4,7 @@ import rocks.zipcode.Word;
 
 public class WordAt extends Word {
     private String addr;
-    private String forwardref = null;
+    private String forwardref = null; // symbol to be resolved.
 
     public WordAt(String address, int bZero, int bOne, int bTwo, int bThree) {
         super(bZero, bOne, bTwo, bThree);
@@ -26,18 +26,16 @@ public class WordAt extends Word {
 
     public void undefineForwardRef(String reference) {
         this.setForwardref(reference);
-        this.addr = "undefined";
     }
 
     public void defineForwardReference(String address) {
-        this.setForwardref("");
-        this.addr = address;
-        int addr = Integer.decode(address);
-        this.b[3] = (addr & 0xFF);
-        this.b[2] = (addr & 0xFF00) >> 16;
+        this.setForwardref(null);
+        int taddr = Integer.decode(address);
+        this.b[3] = (taddr & 0xFF);
+        this.b[2] = (taddr & 0xFF00) >> 16;
     }
     public boolean isForwardReference() {
-        return this.addr.equals("undefined");
+        return this.forwardref != null;
     }
 
     @Override

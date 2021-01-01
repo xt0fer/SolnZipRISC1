@@ -14,7 +14,7 @@ import rocks.zipcode.Word;
  */
 
 public class ZAS {
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     ArrayList<WordAt> instructions = new ArrayList<>();
     SymbolTable symbols = new SymbolTable();
@@ -24,13 +24,13 @@ public class ZAS {
 
     public static void main(String[] args) {
         ZAS zas = new ZAS();
-        System.err.println("**** ZipRISC1 Assembler v1.2 ****\n");
+        System.err.println("//**** ZipRISC1 Assembler v1.2 ****");
         // System.err.print("args ");
         // for (String arg : args) {
         //     System.out.print(" ");
         //     System.out.print(arg);
         // }
-        System.err.println();
+        // System.err.println();
         if (args.length == 1) {
             try {
                 zas.loadTables();
@@ -90,7 +90,7 @@ public class ZAS {
         if (DEBUG) System.err.print("> ");
         String lineNoComments = line;
         int index = line.indexOf("//");
-        if (index > 0) {
+        if (index >= 0) {
             lineNoComments= line.substring(0, index);
         }
         if (DEBUG) System.err.print(lineNoComments);
@@ -114,12 +114,13 @@ public class ZAS {
     private void handleDirective(String line, String dir) {
         String[] tokens = line.split("\\s");
         if (DEBUG) {
-        System.err.print(" /"+dir+"/ ");
-        System.err.print("["+line+"]");
-        for (String token : tokens) {
-            System.err.print(" >> "+token);
+            System.err.print(" /"+dir+"/ ");
+            System.err.print("["+line+"]");
+            for (String token : tokens) {
+                System.err.print(" >> "+token);
+            }
         }
-    }
+
         if (dir.equals("WD")) {
             int wordSaved = Integer.parseInt(tokens[1]);
             this.instructions.add(new WordAt(currentAddressString(), 
@@ -129,6 +130,12 @@ public class ZAS {
         if (dir.equals("OR")) {
             int newStart = Integer.decode(tokens[1]);
             this.address = newStart;
+        }
+        if (dir.equals("EQ")) {
+            if (symbols.containsKey(tokens[1])){
+                throw new Error("Cann't redefine an existing EQ");
+            }
+            symbols.put(tokens[1], tokens[2]);
         }
     }
 
@@ -140,7 +147,6 @@ public class ZAS {
     private String currentAddressString() {
         return String.format("0x%04X", this.address);
     }
-
 
         /*
          * Just for reference
@@ -252,7 +258,7 @@ public class ZAS {
         String a2,
         String a3) {
         int immed = Integer.parseInt(a3);
-        System.err.println("\nshift "+a3+" immed "+immed);
+        // System.err.println("\nshift "+a3+" immed "+immed);
         return new WordAt(currentAddressString(),
         resolve(opcode), resolve(a1), 
         resolve(a2), immed);
@@ -270,8 +276,6 @@ public class ZAS {
             // it's a forward ref.
             newWord.undefineForwardRef(aa);
         }
-        this.instructions.add(newWord);
-        this.address++;
         return newWord;
     }
 
@@ -338,11 +342,11 @@ public class ZAS {
     }
 
     private void dumpSymbols() {
-        System.err.print(" // SYMBOLS\n");
+        System.err.print("// SYMBOLS\n");
         for (Map.Entry<String, String> entry : this.symbols.entrySet()) {
-            System.out.println(entry.getKey() + ":" + entry.getValue().toString());
+            System.out.println("// "+entry.getKey() + ":" + entry.getValue().toString());
        }
-       System.err.print(" // END SYMBOLS\n");
+       System.err.print("// END SYMBOLS\n");
     }
 
     private void outputResults() {

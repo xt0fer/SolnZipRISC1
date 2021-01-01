@@ -67,9 +67,21 @@ These are just handy, the text in the first column gets translated to the instru
 - OUT rd | Bd00 | output a number from rd
 - DUMP | F000 | print out registers, machine state and memory
 
-### Directives
+### Assembler Directives
 
 Directives included help layout code in the memory. They are kind like macros.
+
+.OR set origin address of code (load code starting at this address (hex)
+
+```
+.OR 0x0000
+```
+
+.WD load next memory word with decimal number
+
+```
+.WD 2
+```
 
 .EQ equate for defining decimal constants
 
@@ -77,12 +89,9 @@ Directives included help layout code in the memory. They are kind like macros.
 .EQ Zero 0
 .EQ OneHundred 100
 ```
+(but I am not sure we need this quite yet. nor whether the assembler will resolve the symbol correctly)
 
-.OR set origin address of code (load code starting at this address (hex)
-
-```
-.OR 0x0000
-```
+### not yet implemented 
 
 .HS hex string of bytes
 
@@ -102,11 +111,13 @@ Directives included help layout code in the memory. They are kind like macros.
 .BS 64
 ```
 
-.WD load next memory word with decimal number
+.EQ equate for defining decimal constants
 
 ```
-.WD 2
+.EQ Zero 0
+.EQ OneHundred 100
 ```
+
 
 ### Sample Programs
 
@@ -162,7 +173,13 @@ loop:
 multiply by 8, value at aa 90
 
 ```
-loop:LD x1, 90ADD x1, x1ADD x1, x1ADD x1, x1ST x1, 91BRA loop
+loop:
+    IN x1
+    ADD x1, x1
+    ADD x1, x1
+    ADD x1, x1
+    OUT x1
+    BRA loop
 ```
 
 Max function (read two inputs, output the larger of the two)
@@ -185,13 +202,11 @@ Build me a Guess the Number program?
 
 ## Toolchain
 
-### Assembler
+### ZAS Assembler
 
-Build an assembler/compiler.
+`zas` translates .zas file to standard out (which you should put into a .zex file).
 
-translates .zas file to .zex file
-
-A ZAS file is a text file which contain the lines of a program which runs on the ZipRISC1
+A ZAS assembler file is a text file which contain the lines of a program which runs on the ZipRISC1.
 
 File format is simple: a line is either empty, a directive, label, or an instruction
 

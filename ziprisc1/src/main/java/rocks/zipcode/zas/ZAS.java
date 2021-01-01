@@ -344,7 +344,7 @@ public class ZAS {
     private void dumpSymbols() {
         System.err.print("// SYMBOLS\n");
         for (Map.Entry<String, String> entry : this.symbols.entrySet()) {
-            System.out.println("// "+entry.getKey() + ":" + entry.getValue().toString());
+            System.err.println("// "+entry.getKey() + ":" + entry.getValue().toString());
        }
        System.err.print("// END SYMBOLS\n");
     }

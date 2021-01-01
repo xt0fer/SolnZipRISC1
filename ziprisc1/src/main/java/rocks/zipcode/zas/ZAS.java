@@ -141,6 +141,32 @@ public class ZAS {
         return String.format("0x%04X", this.address);
     }
 
+
+        /*
+         * Just for reference
+         * INSTRUCTIONs
+        - ADD rd, rs, rt | 1dst | rd <- rs + rt
+        - SUB rd, rs, rt | 2dst | rd <- rs - rt
+        - SUBI rd, rs, k | 3dsk | rd ← rs - k
+        - LSH rd, rs, k | 4dsk | rd <- rs / k ??
+        - RSH rd, rs, k | 5dsk | rd <- rs * k ??
+        - BRZ rd, aa | 6daa | branch to aa on rd == 0
+        - BGT rd, aa | 7daa | branch to aa on rd > 0
+        - LD rd, aa | 8daa | load rd with value of memory loc aa
+        - ST rs, aa | 9saa | store rd value to memory loc aa
+        - HLT | 0000 | halt.
+        - HCF | 0FFF | halt and catch fire.
+         * PSEUDOs
+        - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
+        - CLR rd │ ADD rd, x0, x0 │ rd ← 0
+        - DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
+        - INCR rd |ADD rd, rd, 1  | rd <- rd + 1
+        - BRA aa │ BRZ x0, aa │ next instruction to read is at aa
+        - IN rd | Ad00 | read in a number to rd
+        - OUT rd | Bd00 | output a number from rd
+        - DUMP | F000 | print out registers, machine state and memory
+        */
+
     private WordAt handleCode(String line, String opcode) {
         // change to standard interface, and call create opcode
         line = line.trim().replace(",", "");
@@ -158,12 +184,11 @@ public class ZAS {
         if (opcode.equals("MOV")) {
             return new3argWord(opcode, tokens[1], tokens[2], "x0");
         }
-//        CLR rd │ ADD rd, x0, x0 │ rd ← 0
+        // CLR rd │ ADD rd, x0, x0 │ rd ← 0
         if (opcode.equals("CLR")) {
             return new3argWord("ADD", tokens[1], "x0", "x0");
         }
-
-//        INCR rd |ADD rd, rd, 1  | rd <- rd + 1
+        // INCR rd |ADD rd, rd, 1  | rd <- rd + 1
         if (opcode.equals("INCR")) {
             return newShiftWord(opcode, tokens[1], tokens[1], "1");
         }
@@ -211,30 +236,6 @@ public class ZAS {
         }
 
         return newHCFWord();
-
-        /*
-         * INSTRUCTIONs
-        - ADD rd, rs, rt | 1dst | rd <- rs + rt
-        - SUB rd, rs, rt | 2dst | rd <- rs - rt
-        - SUBI rd, rs, k | 3dsk | rd ← rs - k
-        - LSH rd, rs, k | 4dsk | rd <- rs / k ??
-        - RSH rd, rs, k | 5dsk | rd <- rs * k ??
-        - BRZ rd, aa | 6daa | branch to aa on rd == 0
-        - BGT rd, aa | 7daa | branch to aa on rd > 0
-        - LD rd, aa | 8daa | load rd with value of memory loc aa
-        - ST rs, aa | 9saa | store rd value to memory loc aa
-        - HLT | 0000 | halt.
-        - HCF | 0FFF | halt and catch fire.
-         * PSEUDOs
-        - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
-        - CLR rd │ ADD rd, x0, x0 │ rd ← 0
-        - DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
-        - INCR rd |ADD rd, rd, 1  | rd <- rd + 1
-        - BRA aa │ BRZ x0, aa │ next instruction to read is at aa
-        - IN rd | Ad00 | read in a number to rd
-        - OUT rd | Bd00 | output a number from rd
-        - DUMP | F000 | print out registers, machine state and memory
-        */
     }
 
     private WordAt newIOWord(String opcode, String rd) {

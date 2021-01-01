@@ -24,7 +24,7 @@ public class ZAS {
 
     public static void main(String[] args) {
         ZAS zas = new ZAS();
-        System.err.println("**** ZipRISC1 Assembler v1 ****\n");
+        System.err.println("**** ZipRISC1 Assembler v1.2 ****\n");
         // System.err.print("args ");
         // for (String arg : args) {
         //     System.out.print(" ");

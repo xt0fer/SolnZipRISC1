@@ -80,7 +80,7 @@ public class ZAS {
 			}
 			reader.close();
 		} catch (java.io.IOException e) {
-			e.printStackTrace();
+            e.printStackTrace();
 		}
     }
 
@@ -160,12 +160,12 @@ public class ZAS {
         }
 //        CLR rd │ ADD rd, x0, x0 │ rd ← 0
         if (opcode.equals("CLR")) {
-            return new3argWord(opcode, tokens[1], "x0", "x0");
+            return new3argWord("ADD", tokens[1], "x0", "x0");
         }
 
 //        INCR rd |ADD rd, rd, 1  | rd <- rd + 1
         if (opcode.equals("INCR")) {
-            return new3argWord(opcode, tokens[1], tokens[2], "1");
+            return newShiftWord(opcode, tokens[1], tokens[1], "1");
         }
         if (opcode.equals("HLT")) {
             return newHaltWord();
@@ -199,7 +199,7 @@ public class ZAS {
         }
         // DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
         if (opcode.equals("DEC")) {
-            return newShiftWord(opcode, tokens[1], tokens[1], "1");
+            return newShiftWord("SUBI", tokens[1], tokens[1], "1");
         }
         // IN rd | Ad00 | read in a number to rd
         if (opcode.equals("IN")) {
@@ -213,6 +213,7 @@ public class ZAS {
         return newHCFWord();
 
         /*
+         * INSTRUCTIONs
         - ADD rd, rs, rt | 1dst | rd <- rs + rt
         - SUB rd, rs, rt | 2dst | rd <- rs - rt
         - SUBI rd, rs, k | 3dsk | rd ← rs - k
@@ -224,15 +225,15 @@ public class ZAS {
         - ST rs, aa | 9saa | store rd value to memory loc aa
         - HLT | 0000 | halt.
         - HCF | 0FFF | halt and catch fire.
-        PSEUDOs
-        MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
-        CLR rd │ ADD rd, x0, x0 │ rd ← 0
-        DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
-        INCR rd |ADD rd, rd, 1  | rd <- rd + 1
-        BRA aa │ BRZ x0, aa │ next instruction to read is at aa
-        IN rd | Ad00 | read in a number to rd
-        OUT rd | Bd00 | output a number from rd
-        DUMP | F000 | print out registers, machine state and memory
+         * PSEUDOs
+        - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
+        - CLR rd │ ADD rd, x0, x0 │ rd ← 0
+        - DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
+        - INCR rd |ADD rd, rd, 1  | rd <- rd + 1
+        - BRA aa │ BRZ x0, aa │ next instruction to read is at aa
+        - IN rd | Ad00 | read in a number to rd
+        - OUT rd | Bd00 | output a number from rd
+        - DUMP | F000 | print out registers, machine state and memory
         */
     }
 
@@ -244,14 +245,16 @@ public class ZAS {
         return new WordAt(currentAddressString(), 0, 0xFF, 0xFF, 0xFF);
     }
 
-    // LSH, RSH, and SUBI
+    // LSH, RSH, and SUBI and DECR and INCR(!)
     private WordAt newShiftWord(String opcode,
         String a1,
         String a2,
         String a3) {
+        int immed = Integer.parseInt(a3);
+        System.err.println("\nshift "+a3+" immed "+immed);
         return new WordAt(currentAddressString(),
         resolve(opcode), resolve(a1), 
-        resolve(a2), Integer.parseInt(a3));
+        resolve(a2), immed);
     }
 
     private WordAt newBRZWord(String opcode, String rd, String aa) {
@@ -370,6 +373,8 @@ public class ZAS {
 
         // load up opcodes
         registers.put("ADD", 1);
+        registers.put("INCR", 1);
+        registers.put("MOV", 1);
         registers.put("SUB", 2);
         registers.put("SUBI", 3);
         registers.put("LSH", 4);

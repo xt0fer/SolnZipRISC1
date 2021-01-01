@@ -2,9 +2,18 @@
     BRA start
 two:
 .WD 2
+tmpi:
+.WD 0
 start:
     LD x1, two // load
     LD x2, two
     ADD x1, x1, x2
+    SUB x4, x1, x1
+    SUBI x4, x4, 5
+    CLR x4
+    ST x2, tmpi
+    LD x5, two
+    INCR x5
+    DEC x5
     DUMP
     HLT

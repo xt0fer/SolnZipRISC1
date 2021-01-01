@@ -158,6 +158,15 @@ public class ZAS {
         if (opcode.equals("MOV")) {
             return new3argWord(opcode, tokens[1], tokens[2], "x0");
         }
+//        CLR rd │ ADD rd, x0, x0 │ rd ← 0
+        if (opcode.equals("CLR")) {
+            return new3argWord(opcode, tokens[1], "x0", "x0");
+        }
+
+//        INCR rd |ADD rd, rd, 1  | rd <- rd + 1
+        if (opcode.equals("INCR")) {
+            return new3argWord(opcode, tokens[1], tokens[2], "1");
+        }
         if (opcode.equals("HLT")) {
             return newHaltWord();
         }
@@ -188,6 +197,19 @@ public class ZAS {
         if (opcode.equals("RSH")) {
             return newShiftWord(opcode, tokens[1], tokens[2], tokens[3]);
         }
+        // DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
+        if (opcode.equals("DEC")) {
+            return newShiftWord(opcode, tokens[1], tokens[1], "1");
+        }
+        // IN rd | Ad00 | read in a number to rd
+        if (opcode.equals("IN")) {
+            return newIOWord(opcode, tokens[1]);
+        }
+        // OUT rd | Bd00 | output a number from rd
+        if (opcode.equals("OUT")) {
+            return newIOWord(opcode, tokens[1]);
+        }
+
         return newHCFWord();
 
         /*
@@ -212,6 +234,10 @@ public class ZAS {
         OUT rd | Bd00 | output a number from rd
         DUMP | F000 | print out registers, machine state and memory
         */
+    }
+
+    private WordAt newIOWord(String opcode, String rd) {
+        return new WordAt(currentAddressString(), resolve(opcode), resolve(rd), 0, 0);
     }
 
     private WordAt newHCFWord() {
@@ -355,6 +381,8 @@ public class ZAS {
         registers.put("BGT", 7);
         registers.put("LD", 8);
         registers.put("ST", 9);
+        registers.put("IN", 10);
+        registers.put("OUT", 11);
 
         
     }

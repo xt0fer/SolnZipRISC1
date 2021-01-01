@@ -14,6 +14,8 @@ import rocks.zipcode.Word;
  */
 
 public class ZAS {
+    public static final boolean DEBUG = true;
+
     ArrayList<WordAt> instructions = new ArrayList<>();
     SymbolTable symbols = new SymbolTable();
     
@@ -84,13 +86,14 @@ public class ZAS {
 
 
     private void parseLine(String line) {
-        System.err.print("> ");
+        WordAt newWord;
+        if (DEBUG) System.err.print("> ");
         String lineNoComments = line;
         int index = line.indexOf("//");
         if (index > 0) {
             lineNoComments= line.substring(0, index);
         }
-        System.err.print(lineNoComments);
+        if (DEBUG) System.err.print(lineNoComments);
         Matcher lMatch = label_pattern.matcher(lineNoComments);
         Matcher dMatch = directive_pattern.matcher(lineNoComments);
         Matcher codeMatch = code_pattern.matcher(lineNoComments);
@@ -99,19 +102,24 @@ public class ZAS {
         } else if (dMatch.find()) {
             this.handleDirective(lineNoComments, dMatch.group(1));
         } else if (codeMatch.find()) {
-            this.handleCode(lineNoComments, codeMatch.group(1));
+            newWord = this.handleCode(lineNoComments, codeMatch.group(1));
+            this.instructions.add(newWord);
+            this.address++;
         }
-        System.err.println();
+
+        if (DEBUG) System.err.println();
 
     }
 
     private void handleDirective(String line, String dir) {
+        String[] tokens = line.split("\\s");
+        if (DEBUG) {
         System.err.print(" /"+dir+"/ ");
         System.err.print("["+line+"]");
-        String[] tokens = line.split("\\s");
         for (String token : tokens) {
             System.err.print(" >> "+token);
         }
+    }
         if (dir.equals("WD")) {
             int wordSaved = Integer.parseInt(tokens[1]);
             this.instructions.add(new WordAt(currentAddressString(), 
@@ -125,7 +133,7 @@ public class ZAS {
     }
 
     private void handleLabel(String line, String label) {
-        System.err.print(" // "+label+" ");
+        if (DEBUG) System.err.print(" // "+label+" ");
         symbols.put(label, currentAddressString());
     }
 
@@ -133,71 +141,142 @@ public class ZAS {
         return String.format("0x%04X", this.address);
     }
 
-    private void handleCode(String line, String opcode) {
+    private WordAt handleCode(String line, String opcode) {
         // change to standard interface, and call create opcode
-        System.err.print(" // "+opcode);
         line = line.trim().replace(",", "");
-        System.err.print("["+line+"]");
         String[] tokens = line.split("\\W");
-        for (String token : tokens) {
-            System.err.print(" >> "+token);
+        if (DEBUG) { 
+            System.err.print(" // "+opcode);
+            System.err.print("["+line+"]");
+            for (String token : tokens) {
+                System.err.print(" >> "+token);
+            }
         }
         if (opcode.equals("ADD")) {
-            WordAt newWord = new WordAt(currentAddressString(),
-                resolve(tokens[0]), 
-                resolve(tokens[1]), 
-                resolve(tokens[2]), 
-                resolve(tokens[3]));
-            this.instructions.add(newWord);
-            this.address++;
-            return;
+            return new3argWord(opcode, tokens[1], tokens[2], tokens[3]);
+        }
+        if (opcode.equals("MOV")) {
+            return new3argWord(opcode, tokens[1], tokens[2], "x0");
         }
         if (opcode.equals("HLT")) {
-            WordAt newWord = new WordAt(currentAddressString(),
-            0, 0, 0, 0);
-        this.instructions.add(newWord);
-        this.address++;
-        return;
+            return newHaltWord();
         }
         if (opcode.equals("DUMP")) {
-            WordAt newWord = new WordAt(currentAddressString(),
-            0x0F, 0, 0, 0);
-        this.instructions.add(newWord);
-        this.address++;
-        return;
+            return newDumpWord();
         }
         if (opcode.equals("LD")) {
-            int addr = resolve(tokens[1]);
-            WordAt newWord = new WordAt(currentAddressString(),
-            resolve(tokens[0]),
-            resolve(tokens[1]),
-            upperHalf(resolve(tokens[2])),
-            lowerHalf(resolve(tokens[2]))
-            );
-            if (addr == -1) {
-                // it's a forward ref.
-                newWord.undefineForwardRef(tokens[1]);
-            }
-            this.instructions.add(newWord);
-            this.address++;
-            return;
+            return newMemoryWord(opcode, tokens[1], tokens[2]);
+        }
+        if (opcode.equals("ST")) {
+            return newMemoryWord(opcode, tokens[1], tokens[2]);
         }
         if (opcode.equals("BRA")) {
-            int addr = resolve(tokens[1]);
-            WordAt newWord = new WordAt(currentAddressString(),
-            resolve(tokens[0]),
-            0,
-            upperHalf(addr),
-            lowerHalf(addr)
-            );
-            if (addr == -1) {
-                // it's a forward ref.
-                newWord.undefineForwardRef(tokens[1]);
-            }
-            this.instructions.add(newWord);
-            this.address++;
-            return;
+            return newBRZWord("BRZ", "x0", tokens[1]);
         }
+        if (opcode.equals("BRZ")) {
+            return newBRZWord("BRZ", tokens[1], tokens[2]);
+        }
+        if (opcode.equals("SUB")) {
+            return new3argWord(opcode, tokens[1], tokens[2], tokens[3]);
+        }
+        if (opcode.equals("SUBI")) {
+            return newShiftWord(opcode, tokens[1], tokens[2], tokens[3]);
+        }
+        if (opcode.equals("LSH")) {
+            return newShiftWord(opcode, tokens[1], tokens[2], tokens[3]);
+        }
+        if (opcode.equals("RSH")) {
+            return newShiftWord(opcode, tokens[1], tokens[2], tokens[3]);
+        }
+        return newHCFWord();
+
+        /*
+        - ADD rd, rs, rt | 1dst | rd <- rs + rt
+        - SUB rd, rs, rt | 2dst | rd <- rs - rt
+        - SUBI rd, rs, k | 3dsk | rd ← rs - k
+        - LSH rd, rs, k | 4dsk | rd <- rs / k ??
+        - RSH rd, rs, k | 5dsk | rd <- rs * k ??
+        - BRZ rd, aa | 6daa | branch to aa on rd == 0
+        - BGT rd, aa | 7daa | branch to aa on rd > 0
+        - LD rd, aa | 8daa | load rd with value of memory loc aa
+        - ST rs, aa | 9saa | store rd value to memory loc aa
+        - HLT | 0000 | halt.
+        - HCF | 0FFF | halt and catch fire.
+        PSEUDOs
+        MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
+        CLR rd │ ADD rd, x0, x0 │ rd ← 0
+        DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
+        INCR rd |ADD rd, rd, 1  | rd <- rd + 1
+        BRA aa │ BRZ x0, aa │ next instruction to read is at aa
+        IN rd | Ad00 | read in a number to rd
+        OUT rd | Bd00 | output a number from rd
+        DUMP | F000 | print out registers, machine state and memory
+        */
+    }
+
+    private WordAt newHCFWord() {
+        return new WordAt(currentAddressString(), 0, 0xFF, 0xFF, 0xFF);
+    }
+
+    // LSH, RSH, and SUBI
+    private WordAt newShiftWord(String opcode,
+        String a1,
+        String a2,
+        String a3) {
+        return new WordAt(currentAddressString(),
+        resolve(opcode), resolve(a1), 
+        resolve(a2), Integer.parseInt(a3));
+    }
+
+    private WordAt newBRZWord(String opcode, String rd, String aa) {
+        int addr = resolve(aa);
+        WordAt newWord = new WordAt(currentAddressString(),
+        resolve(opcode),
+        resolve(rd),
+        upperHalf(addr),
+        lowerHalf(addr)
+        );
+        if (addr == -1) {
+            // it's a forward ref.
+            newWord.undefineForwardRef(aa);
+        }
+        this.instructions.add(newWord);
+        this.address++;
+        return newWord;
+    }
+
+    // both LD and ST
+    private WordAt newMemoryWord(String opcode, String a1, String a2) {
+        int addr = resolve(a2);
+        WordAt newWord = new WordAt(currentAddressString(),
+        resolve(opcode),
+        resolve(a1),
+        upperHalf(resolve(a2)),
+        lowerHalf(resolve(a2))
+        );
+        if (addr == -1) {
+            // it's a forward ref.
+            newWord.undefineForwardRef(a2);
+        }
+        return newWord;
+}
+
+    private WordAt newDumpWord() {
+        return new WordAt(currentAddressString(), 0x0F, 0, 0, 0);
+    }
+
+    private WordAt newHaltWord() {
+        return new WordAt(currentAddressString(), 0, 0, 0, 0);
+    }
+
+    // both ADD and SUB
+    private WordAt new3argWord(String op,
+            String a1,
+            String a2,
+            String a3) {
+        return new WordAt(currentAddressString(),
+        resolve(op), resolve(a1), 
+        resolve(a2), resolve(a3));
     }
 
     private int lowerHalf(int addr) {
@@ -265,11 +344,17 @@ public class ZAS {
 
         // load up opcodes
         registers.put("ADD", 1);
+        registers.put("SUB", 2);
+        registers.put("SUBI", 3);
+        registers.put("LSH", 4);
+        registers.put("RSH", 5);
         registers.put("HLT", 0);
         registers.put("DUMP", 0x0F);
         registers.put("BRA", 6);
         registers.put("BRZ", 6);
+        registers.put("BGT", 7);
         registers.put("LD", 8);
+        registers.put("ST", 9);
 
         
     }

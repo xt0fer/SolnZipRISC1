@@ -1,6 +1,6 @@
 # ZipRISC1
 
-v1.0
+v1.2
 
 This lab/project can be done in either Java, Javascript, Python or any other language you manage. 
 Just ask permission if you want to do it in something other than Java or Python.

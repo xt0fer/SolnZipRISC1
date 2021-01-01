@@ -134,6 +134,7 @@ public class ZAS {
     }
 
     private void handleCode(String line, String opcode) {
+        // change to standard interface, and call create opcode
         System.err.print(" // "+opcode);
         line = line.trim().replace(",", "");
         System.err.print("["+line+"]");
@@ -166,30 +167,37 @@ public class ZAS {
         return;
         }
         if (opcode.equals("LD")) {
+            int addr = resolve(tokens[1]);
             WordAt newWord = new WordAt(currentAddressString(),
             resolve(tokens[0]),
             resolve(tokens[1]),
             upperHalf(resolve(tokens[2])),
             lowerHalf(resolve(tokens[2]))
             );
-        this.instructions.add(newWord);
-        this.address++;
-        return;
+            if (addr == -1) {
+                // it's a forward ref.
+                newWord.undefineForwardRef(tokens[1]);
+            }
+            this.instructions.add(newWord);
+            this.address++;
+            return;
         }
         if (opcode.equals("BRA")) {
+            int addr = resolve(tokens[1]);
             WordAt newWord = new WordAt(currentAddressString(),
             resolve(tokens[0]),
             0,
-            upperHalf(resolve(tokens[1])),
-            lowerHalf(resolve(tokens[1]))
+            upperHalf(addr),
+            lowerHalf(addr)
             );
-        this.instructions.add(newWord);
-        this.address++;
-        return;
+            if (addr == -1) {
+                // it's a forward ref.
+                newWord.undefineForwardRef(tokens[1]);
+            }
+            this.instructions.add(newWord);
+            this.address++;
+            return;
         }
-        
-
-
     }
 
     private int lowerHalf(int addr) {
@@ -212,8 +220,12 @@ public class ZAS {
             return this.registers.get(token);
         }
         // otherwise try to interpret the token as address
-        int newAddress = Integer.decode(token);
-        return newAddress;
+        if (token.startsWith("0x")){
+            int newAddress = Integer.decode(token);
+            return newAddress;            
+        }
+        // assume at this point the token is a forward symbol reference.
+        return -1;
     }
 
     private void dumpSymbols() {
@@ -225,7 +237,17 @@ public class ZAS {
     }
 
     private void outputResults() {
+        // resolve any unknown forward refs.
+        // and output
         for (WordAt w : this.instructions) {
+            if (w.isForwardReference()) {
+                if (symbols.containsKey(w.getForwardref())) {
+                    String a = symbols.get(w.getForwardref());
+                    w.defineForwardReference(a);
+                } else {
+                    throw new Panic("unable to resolve symbol "+w.getForwardref());
+                }
+            }
             System.out.println(w.toString());
         }
     }

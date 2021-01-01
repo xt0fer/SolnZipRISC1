@@ -10,7 +10,7 @@ package rocks.zipcode;
 // like I say, a bit tricky.
 //
 public class Word {
-    int[] b = new int[4];
+    protected int[] b = new int[4];
 
 	public Word() {
 		this.b[3] = 0;

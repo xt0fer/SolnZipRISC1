@@ -254,3 +254,5 @@ You get to graduate from ZipCode early if you write a C compiler for this proces
 - implement a femtoC compiler
 - implement a femtoLisp interpreter
 - implement a Forth
+
+_Need a BUNCH of tests!_

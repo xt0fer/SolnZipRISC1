@@ -8,6 +8,10 @@ start:
     OUT x5
     RSH x5 x5 1
     OUT x5
+    SUBI x5 x5 1
+    SUBI x5 x5 1
+    SUBI x5 x5 -1
+    OUT x5
 exit:
     HALT
 tmpi:

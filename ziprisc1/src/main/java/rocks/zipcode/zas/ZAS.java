@@ -51,8 +51,8 @@ public class ZAS {
     }
 
     String directiveLine = "^\\.([A-Z][A-Z])"; // dot, TWO UPPERCASE chars, space, and rest
-    String labelLine = "^([a-z]+):"; // start of line, all lowercase alpha, colon.
-    String codeLine = "[\\s+]([A-Z]+)[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)";
+    String labelLine = "^([a-z0-9]+):"; // start of line, all lowercase alpha, colon.
+    String codeLine = "[\\s+]([A-Z]+)[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)[,]*[\\s]*(\\-?[\\w]*)";
     Pattern directive_pattern;
     Pattern label_pattern;
     Pattern code_pattern;

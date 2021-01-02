@@ -149,19 +149,15 @@ public class CPU implements RISC1Core {
 
     @Override
     public int inputInt()  {
-        // try {
-            this.inputWord = this.stdin.nextInt();
-            this.stdin.next();
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        //     throw new Panic("input failed.");
-        // }
+        System.out.print("? ");
+        this.inputWord = this.stdin.nextInt();
+        this.stdin.nextLine();
         return inputWord;
     }
 
     @Override
     public void outputInt(int i) {
-        System.err.print(i);
+        System.out.println("> "+i);
     }
 
     public void dumpState() {

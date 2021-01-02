@@ -154,10 +154,13 @@ The output from zas of this file would be a UTF-8 file of hex numbers.
 ```
 loop:
     IN x1
+    BRZ x1, exit
     IN x2
     ADD x1, x2
     OUT x1
     BRA loop
+exit:
+    HALT
 ```
 
 
@@ -240,3 +243,14 @@ Main Processor Data Structures
 - output word
 
 You get to graduate from ZipCode early if you write a C compiler for this processor. Several corporate partners may actually compete to hire you for bigger than normal money if you manage that.
+
+### Futures
+
+- add AND, OR, and XOR instructions
+- add PUSH and POP? to the stack at SP
+- (maybe even PUSHI and POPI? immediate versions of Push/Pop
+- strings - handle unicode arrays in memory
+
+- implement a femtoC compiler
+- implement a femtoLisp interpreter
+- implement a Forth

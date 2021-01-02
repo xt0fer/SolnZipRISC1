@@ -43,9 +43,9 @@ public class Engine {
     // - OUT rd | Bd00 | output a number from rd
     public final static int OUT = 11;
 
-    // - LSH rd, rs, k | 4dsk | rd <- rs / k ??
+    // - LSH rd, rs, k | 4dsk | rd <- rs << k 
     public final static int LSH = 4;
-    // - RSH rd, rs, k | 5dsk | rd <- rs * k ??
+    // - RSH rd, rs, k | 5dsk | rd <- rs >> k 
     public final static int RSH = 5;
 
     
@@ -120,7 +120,13 @@ public class Engine {
             case Engine.OUT:
                 outputFromReg(arg1, arg2, arg3);
                 break;
-                
+            
+            case Engine.LSH:
+                leftShift(arg1, arg2, arg3);
+                break;
+            case Engine.RSH:
+                rightShift(arg1, arg2, arg3);
+                break;
             default:
                 // perform a NOP
                 ;
@@ -128,6 +134,14 @@ public class Engine {
     }
     
     // Instruction Implementations.
+
+    private void rightShift(int arg1, int arg2, int arg3) {
+        cpu.set(arg1, cpu.get(arg2) >> arg3);
+    }
+
+    private void leftShift(int arg1, int arg2, int arg3) {
+        cpu.set(arg1, cpu.get(arg2) << arg3);
+    }
 
     private void outputFromReg(int arg1, int arg2, int arg3) {
         cpu.outputInt(cpu.get(arg1));

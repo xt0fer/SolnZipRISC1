@@ -16,7 +16,7 @@ import rocks.zipcode.Word;
 
 public class ZAS {
     public static final boolean DEBUG = false;
-    public static final int MAXREGS = 32;
+    public static final int MAXREGS = 16;
 
     ArrayList<WordAt> instructions = new ArrayList<>();
     SymbolTable symbols = new SymbolTable();
@@ -88,7 +88,7 @@ public class ZAS {
 
 
     private void parseLine(String line) {
-        WordAt newWord;
+
         if (DEBUG) System.err.print("> ");
         String lineNoComments = line;
         int index = line.indexOf("//");
@@ -96,21 +96,19 @@ public class ZAS {
             lineNoComments= line.substring(0, index);
         }
         if (DEBUG) System.err.print(lineNoComments);
+
         Matcher lMatch = label_pattern.matcher(lineNoComments);
         Matcher dMatch = directive_pattern.matcher(lineNoComments);
         Matcher codeMatch = code_pattern.matcher(lineNoComments);
-        if (lMatch.find()) {
-            this.handleLabel(lineNoComments, lMatch.group(1));
+        
+        if (codeMatch.find()) {
+            appendWord(this.handleCode(lineNoComments, codeMatch.group(1)));
         } else if (dMatch.find()) {
             this.handleDirective(lineNoComments, dMatch.group(1));
-        } else if (codeMatch.find()) {
-            newWord = this.handleCode(lineNoComments, codeMatch.group(1));
-            this.instructions.add(newWord);
-            this.address++;
+        } else if (lMatch.find()) {
+            this.handleLabel(lineNoComments, lMatch.group(1));
         }
-
         if (DEBUG) System.err.println();
-
     }
 
     private void handleDirective(String line, String dir) {
@@ -133,12 +131,12 @@ public class ZAS {
             int newStart = Integer.decode(tokens[1]);
             this.address = newStart;
         }
-        if (dir.equals("EQ")) {
-            if (symbols.containsKey(tokens[1])){
-                throw new Error("Cann't redefine an existing EQ");
-            }
-            symbols.put(tokens[1], tokens[2]);
-        }
+        // if (dir.equals("EQ")) {
+        //     if (symbols.containsKey(tokens[1])){
+        //         throw new Error("Can't redefine an existing symbol: "+tokens[1]);
+        //     }
+        //     symbols.put(tokens[1], tokens[2]);
+        // }
     }
 
     private void handleLabel(String line, String label) {
@@ -176,7 +174,7 @@ public class ZAS {
         - BRA aa │ BRZ x0, aa │ next instruction to read is at aa
         * the calling convention for subroutines/functions.
         - CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
-        - RET | MOV xPC x1 | pc <- ra (ra is "return address")
+        - RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
         */
 
     private WordAt handleCode(String line, String opcode) {
@@ -250,8 +248,21 @@ public class ZAS {
         if (opcode.equals("OUT")) {
             return newIOWord(opcode, tokens[1]);
         }
-
+        // RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
+        if (opcode.equals("RET")) {
+            return new3argWord("ADD", "xPC", "x1", "x0");
+        }
+        // CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
+        if (opcode.equals("CALL")) {
+            this.appendWord(newShiftWord("ADDI", "x1", "xPC", "1"));
+            return newBRZWord("BRZ", "x0", tokens[1]);
+        }
         return newHCFWord();
+    }
+
+    private void appendWord(WordAt newWord) {
+        this.instructions.add(newWord);
+        this.address++;
     }
 
     private WordAt newIOWord(String opcode, String rd) {

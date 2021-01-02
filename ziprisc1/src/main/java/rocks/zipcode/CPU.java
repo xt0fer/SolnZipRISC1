@@ -5,13 +5,16 @@ import java.lang.System;
 
 public class CPU implements RISC1Core {
 
-    // convenience constants for the last two registers 
-    final static int PC = 0xF; // Program Counter
-    final static int IR = 0xE; // Instruction Decode Register
+    // convenience constants for the last two registers
+    final static int MAXREGS = 16;
+    final static int PC = MAXREGS-1; // Program Counter
+    final static int IR = MAXREGS-2; // Instruction Decode Register
+    final static int SP = MAXREGS-3; // Stack Pointer
+    final static int FP = MAXREGS-4; // Frame Pointer
 
-    private Integer[] registerFile = new Integer[16];
+    private Integer[] registerFile = new Integer[MAXREGS];
 
-    final static int MEMORY_LIMIT = 0x100;
+    final static int MEMORY_LIMIT = 0x100; 
     private Word[] memory = new Word[MEMORY_LIMIT];
     private Word instruction = new Word(0);
 
@@ -26,7 +29,7 @@ public class CPU implements RISC1Core {
     // initial all registers to a specific value
     // zero out memory
     public CPU(int rinit) {
-        for (int i=0; i < 16; i++) {
+        for (int i=0; i < MAXREGS; i++) {
             registerFile[i] = rinit;
         }
         for (int i=0; i < MEMORY_LIMIT; i++) {
@@ -57,18 +60,21 @@ public class CPU implements RISC1Core {
         }
     }
 
+    // store a Word at memory address
     @Override
     public void store(int address, Word w)  {
         this.checkAddress(address);
         memory[address] = w;
     }
 
+    // fetch a Word from memory address
     @Override
     public Word fetch(int address)  {
         this.checkAddress(address);
         return memory[address];
     }
 
+    // set register to contents of Word
     @Override
     public void wset(int register, Word w) {
         int i = w.getInt();
@@ -97,22 +103,25 @@ public class CPU implements RISC1Core {
         return instruction.arg3();
     }
     
+    // get a Word from register
     @Override
     public Word wget(int register) {
         // TODO should this not create a new Word?
         return new Word(get(register));
     }
 
+    // get int from register
     @Override
-    public int get(int r) {
-        if (r == 0) return 0; //always return zero from Reg 0.
-        return this.registerFile[r];
+    public int get(int register) {
+        if (register == 0) return 0; //always return zero from Reg 0.
+        return this.registerFile[register];
     }
 
+    // set register to int
     @Override
-    public void set(int r, int i) {
-        if (r == 0) return; // never allow reg 0 to be set.
-        this.registerFile[r] = i;
+    public void set(int register, int i) {
+        if (register == 0) return; // never allow reg 0 to be set.
+        this.registerFile[register] = i;
     }
 
     @Override
@@ -126,6 +135,7 @@ public class CPU implements RISC1Core {
     @Override
     public int inputInt()  {
         // TODO input routine
+        // mkae this real.
         try {
             this.inputWord = System.in.read();
         } catch (IOException e) {
@@ -142,6 +152,7 @@ public class CPU implements RISC1Core {
     }
 
     public void dumpState() {
+        // if the register is set to zero, do not DUMP
         System.err.println("==== Registers");
         int i = 0;
         for (Integer reg : this.registerFile) {
@@ -150,6 +161,8 @@ public class CPU implements RISC1Core {
             }
             i++;
         }
+
+        // if the contents of memory Word is set to zero, do not DUMP
         i = 0;
         System.err.println("==== Memory");
         for (Word w : memory) {

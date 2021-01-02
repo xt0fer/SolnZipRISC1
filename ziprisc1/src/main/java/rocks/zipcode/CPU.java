@@ -7,10 +7,10 @@ public class CPU implements RISC1Core {
 
     // convenience constants for the last two registers
     final static int MAXREGS = 16;
-    final static int PC = MAXREGS-1; // Program Counter
-    final static int IR = MAXREGS-2; // Instruction Decode Register
-    final static int SP = MAXREGS-3; // Stack Pointer
-    final static int FP = MAXREGS-4; // Frame Pointer
+    public final static int PC = MAXREGS-1; // Program Counter
+    public final static int IR = MAXREGS-2; // Instruction Decode Register
+    public final static int SP = MAXREGS-3; // Stack Pointer
+    public final static int FP = MAXREGS-4; // Frame Pointer
 
     private Integer[] registerFile = new Integer[MAXREGS];
 

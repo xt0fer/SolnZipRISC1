@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import rocks.zipcode.CPU;
 import rocks.zipcode.Panic;
 import rocks.zipcode.Word;
 
@@ -15,6 +16,7 @@ import rocks.zipcode.Word;
 
 public class ZAS {
     public static final boolean DEBUG = false;
+    public static final int MAXREGS = 32;
 
     ArrayList<WordAt> instructions = new ArrayList<>();
     SymbolTable symbols = new SymbolTable();
@@ -162,15 +164,19 @@ public class ZAS {
         - ST rs, aa | 9saa | store rd value to memory loc aa
         - HLT | 0000 | halt.
         - HCF | 0FFF | halt and catch fire.
+        - IN rd | Ad00 | read in a number to rd
+        - OUT rd | Bd00 | output a number from rd
+        - DUMP | F000 | print out registers, machine state and memory
          * PSEUDOs
         - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
+        - ADDI rd, rs, k │ ADD rd, rs, k │ rd ← rs + k
         - CLR rd │ ADD rd, x0, x0 │ rd ← 0
         - DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
         - INCR rd |ADD rd, rd, 1  | rd <- rd + 1
         - BRA aa │ BRZ x0, aa │ next instruction to read is at aa
-        - IN rd | Ad00 | read in a number to rd
-        - OUT rd | Bd00 | output a number from rd
-        - DUMP | F000 | print out registers, machine state and memory
+        * the calling convention for subroutines/functions.
+        - CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
+        - RET | MOV xPC x1 | pc <- ra (ra is "return address")
         */
 
     private WordAt handleCode(String line, String opcode) {
@@ -219,7 +225,11 @@ public class ZAS {
         if (opcode.equals("SUB")) {
             return new3argWord(opcode, tokens[1], tokens[2], tokens[3]);
         }
+        // newShiftWord doesnt resolve last arg, it treats it as integer
         if (opcode.equals("SUBI")) {
+            return newShiftWord(opcode, tokens[1], tokens[2], tokens[3]);
+        }
+        if (opcode.equals("ADDI")) {
             return newShiftWord(opcode, tokens[1], tokens[2], tokens[3]);
         }
         if (opcode.equals("LSH")) {
@@ -376,9 +386,23 @@ public class ZAS {
         registers.put("xC", 12); registers.put("xD", 13); 
         registers.put("xE", 14); registers.put("xF", 15); 
 
+        registers.put("x10", 16); registers.put("x11", 17); 
+        registers.put("x12", 18); registers.put("x13", 19); 
+        registers.put("x14", 20); registers.put("x15", 21); 
+        registers.put("x16", 22); registers.put("x17", 23); 
+        registers.put("x18", 24); registers.put("x19", 25); 
+        registers.put("x1A", 26); registers.put("x1B", 27); 
+        registers.put("x1C", 28); registers.put("x1D", 29); 
+        registers.put("x1E", 30); registers.put("x1F", 31);
+        registers.put("xPC", CPU.PC);
+        registers.put("xIR", CPU.IR);
+        registers.put("xSP", CPU.SP);
+        registers.put("xFP", CPU.FP);
+
         // load up opcodes
         registers.put("ADD", 1);
         registers.put("INCR", 1);
+        registers.put("ADDI", 1);
         registers.put("MOV", 1);
         registers.put("SUB", 2);
         registers.put("SUBI", 3);

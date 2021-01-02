@@ -166,10 +166,10 @@ public class ZAS {
         - HCF | 0FFF | halt and catch fire.
         - IN rd | Ad00 | read in a number to rd
         - OUT rd | Bd00 | output a number from rd
+        - ADDI rd, rs, k │ Cdsk │ rd ← rs + k
         - DUMP | F000 | print out registers, machine state and memory
          * PSEUDOs
         - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
-        - ADDI rd, rs, k │ ADD rd, rs, k │ rd ← rs + k
         - CLR rd │ ADD rd, x0, x0 │ rd ← 0
         - DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
         - INCR rd |ADD rd, rd, 1  | rd <- rd + 1
@@ -262,7 +262,7 @@ public class ZAS {
         return new WordAt(currentAddressString(), 0, 0xFF, 0xFF, 0xFF);
     }
 
-    // LSH, RSH, and SUBI and DECR and INCR(!)
+    // LSH, RSH, and SUBI and DECR and ADDI & INCR(!)
     private WordAt newShiftWord(String opcode,
         String a1,
         String a2,
@@ -402,7 +402,7 @@ public class ZAS {
         // load up opcodes
         registers.put("ADD", 1);
         registers.put("INCR", 1);
-        registers.put("ADDI", 1);
+        registers.put("ADDI", 12);
         registers.put("MOV", 1);
         registers.put("SUB", 2);
         registers.put("SUBI", 3);

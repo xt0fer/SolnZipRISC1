@@ -53,6 +53,10 @@ The first column is the “assembly code”, 2nd is the memory layout of the ins
 - ST rs, aa | 9saa | store rd value to memory loc aa
 - HLT | 0000 | halt.
 - HCF | 0FFF | halt and catch fire.
+- IN rd | Ad00 | read in a number to rd
+- OUT rd | Bd00 | output a number from rd
+- ADDI rd rs k | Cdsk | rd <- rs + k  /*yes, added after first design */
+- DUMP | F000 | print out registers, machine state and memory
 
 ### Pseudo Instructions
 
@@ -61,11 +65,8 @@ These are just handy, the text in the first column gets translated to the instru
 - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
 - CLR rd │ ADD rd, x0, x0 │ rd ← 0
 - DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
-- INCR rd |ADD rd, rd, 1  | rd <- rd + 1
+- INCR rd |ADDI rd, rd, 1  | rd <- rd + 1
 - BRA aa │ BRZ x0, aa │ next instruction to read is at aa
-- IN rd | Ad00 | read in a number to rd
-- OUT rd | Bd00 | output a number from rd
-- DUMP | F000 | print out registers, machine state and memory
 
 ### Assembler Directives
 

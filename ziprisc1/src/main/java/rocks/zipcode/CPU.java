@@ -2,15 +2,19 @@ package rocks.zipcode;
 
 import java.io.IOException;
 import java.lang.System;
+import java.util.Scanner;
 
 public class CPU implements RISC1Core {
 
+    // class handles the registers, the memory, i/o (ints), and the "status word"
+    //
     // convenience constants for the last two registers
     final static int MAXREGS = 16;
     public final static int PC = MAXREGS-1; // Program Counter
     public final static int IR = MAXREGS-2; // Instruction Decode Register
     public final static int SP = MAXREGS-3; // Stack Pointer
     public final static int FP = MAXREGS-4; // Frame Pointer
+    public final static int RA = 1; // use x1 for return address (see CALL and RET)
 
     private Integer[] registerFile = new Integer[MAXREGS];
 
@@ -18,6 +22,7 @@ public class CPU implements RISC1Core {
     private Word[] memory = new Word[MEMORY_LIMIT];
     private Word instruction = new Word(0);
 
+    private Scanner stdin;
     private int inputWord = 0;
     private int outputWord = 0;
     int statusWord = 0;
@@ -35,7 +40,7 @@ public class CPU implements RISC1Core {
         for (int i=0; i < MEMORY_LIMIT; i++) {
             memory[i] = new Word(0);
         }
-
+        this.stdin = new Scanner(System.in);
     }
 
     // CPU state manipulation
@@ -50,6 +55,14 @@ public class CPU implements RISC1Core {
     public boolean haltCPU() {
         this.statusWord = -1;
         return true;
+    }
+
+    private void checkRegister(int register) {
+        if (register < 0 || register >= MAXREGS) {
+            System.err.printf("bogus register %02X %d\n", register, register);
+            this.dumpState();
+            throw new Panic("illegal register value");
+        }
     }
 
     private void checkAddress(int address)  {
@@ -113,6 +126,7 @@ public class CPU implements RISC1Core {
     // get int from register
     @Override
     public int get(int register) {
+        checkRegister(register);
         if (register == 0) return 0; //always return zero from Reg 0.
         return this.registerFile[register];
     }
@@ -120,6 +134,7 @@ public class CPU implements RISC1Core {
     // set register to int
     @Override
     public void set(int register, int i) {
+        checkRegister(register);
         if (register == 0) return; // never allow reg 0 to be set.
         this.registerFile[register] = i;
     }
@@ -134,21 +149,19 @@ public class CPU implements RISC1Core {
 
     @Override
     public int inputInt()  {
-        // TODO input routine
-        // mkae this real.
-        try {
-            this.inputWord = System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new Panic("input failed.");
-        }
+        // try {
+            this.inputWord = this.stdin.nextInt();
+            this.stdin.next();
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        //     throw new Panic("input failed.");
+        // }
         return inputWord;
     }
 
     @Override
     public void outputInt(int i) {
-        // TODO output routine
-        System.err.print(outputWord);
+        System.err.print(i);
     }
 
     public void dumpState() {

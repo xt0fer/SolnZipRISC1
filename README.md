@@ -310,23 +310,34 @@ start:
 
 ### Loader/Evaluator
 
-The a microcode evaluator has two parts: 
+The a microcode evaluator has several parts: 
 
 - CPU class - a very simple POJO that handles memory and registers and cpu status.
 - Engine class - where all the processor implementation code goes
-- Simulator class which executes the simulation
-- Word class the model for the memory locations.
+- Simulator class - which executes the simulation
+- Word class - the model for the memory locations.
   - note that the memory is only word-based (32bit quantities), NOT byte addressable
 
 load a .zas file into memory and start execution at 0x0000.
-a common thing to do is to load 0x0000 with a `BRA 0x0090` (06 00 00 90)
+A common thing to do is to load 0x0000 with a `BRA aa` which allows for data to be loaded into low memory locations. `aa` would be a label like "start" or "main" where the actual code is.
+
+The Simulator then essentially does this: (remember, PS is the Program Counter, the IR is the instruction register)
 
 ```
-load PC with 0
-    FETCH IR (LD xE 0x0000)
-    INCR PC
-    EXECUTE IR
+cpuRunning = true
+PC = 0
+while (cpuRunning == true)
+    load IR with contents of Memory[PC]
+    PC += 1
+    Decode and Execute instruction in IR
+    // the HLT instruction sets cpuRunning = false
+
+// dump the cpu and memory final state
 ```
+
+So, finish up all the instructions, and write some tests to test your instructions.
+
+Then, think about these ideas...
 
 ### Ideas to ponder
 
@@ -341,19 +352,24 @@ load PC with 0
   - x = 2 * x - y + z
 - How would you implement a simple string?
 - What needs to change for string I/O?
-- Should the I/O patternbe changed to ONLY UTF-8 in an out?
+- Should the I/O pattern be changed to ONLY UTF-8 in an out?
 - How would you parse an integer from a string of bytes in zas?
 
+
+### Stuff in side of CPU
+
 Main Processor Data Structures
+
 - status (1 word)(flags??)
 - registers (16 words)
 - memory (16384 words)
 - input word
 - output word
 
-You get to graduate from ZipCode early if you write a C compiler for this processor. Several corporate partners may actually compete to hire you for bigger than normal money if you manage that.
+You get to graduate from ZipCode early if you write a C compiler for this processor.
+Several corporate partners may actually compete to hire you for bigger than normal money if you manage that.
 
-### Futures
+### Futures to be Added
 
 - add AND, OR, and XOR instructions
 - add PUSH and POP? to the stack at SP

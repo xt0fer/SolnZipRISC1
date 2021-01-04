@@ -22,7 +22,7 @@ public class Engine {
     
 
     public void startAt(int initial_address)  {
-        if (initial_address >= CPU.MEMORY_LIMIT) {
+        if (initial_address >= CPU.MEMORY_SIZE) {
             throw new Panic("memory violation");
         }
 
@@ -103,7 +103,7 @@ public class Engine {
     // make the two argument bytes into one 16bit address.
     private int makeAddress(int arg2, int arg3) {
         int addr = ((arg2 & 0x0000FF00) | (arg3 & 0x000000FF));
-        if (addr < 0 || addr >= CPU.MEMORY_LIMIT) {
+        if (addr < 0 || addr >= CPU.MEMORY_SIZE) {
             System.err.printf("Engine: Bad Address: %X \n", addr);
             throw new Panic("Engine: makeAddress: made incorrect address.");
         }

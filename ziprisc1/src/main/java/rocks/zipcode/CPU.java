@@ -14,8 +14,8 @@ public class CPU implements RISC1Core {
 
     private Integer[] registerFile = new Integer[MAXREGS];
 
-    final static int MEMORY_LIMIT = 0x100; 
-    private Word[] memory = new Word[MEMORY_LIMIT];
+    final static int MEMORY_SIZE = 0x100; 
+    private Word[] memory = new Word[MEMORY_SIZE];
     private Word instruction = new Word(0);
 
     private int inputWord = 0;
@@ -32,12 +32,18 @@ public class CPU implements RISC1Core {
         for (int i=0; i < MAXREGS; i++) {
             registerFile[i] = rinit;
         }
-        for (int i=0; i < MEMORY_LIMIT; i++) {
+        for (int i=0; i < MEMORY_SIZE; i++) {
             memory[i] = new Word(0);
         }
 
     }
 
+    public int memorysize() {
+        return MEMORY_SIZE;
+    }
+    public int registerfilesize() {
+        return MAXREGS;
+    }
     // CPU state manipulation
     // primarily here for Engine's methods.
     public boolean isRunnable() {
@@ -53,7 +59,7 @@ public class CPU implements RISC1Core {
     }
 
     private void checkAddress(int address)  {
-        if (address < 0 || address > MEMORY_LIMIT) {
+        if (address < 0 || address > MEMORY_SIZE) {
             System.err.printf("wrong address %04X %d\n", address, address);
             this.dumpState();
             throw new Panic("address out of range");

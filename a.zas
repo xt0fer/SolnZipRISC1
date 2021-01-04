@@ -4,7 +4,9 @@ two:
 .WD 2
 start:
     LD x1, two // load
-    LD x2, two
+    LD x2, three3
     ADD x1, x1, x2
     DUMP
     HLT
+three3:
+.WD 3

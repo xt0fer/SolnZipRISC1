@@ -23,6 +23,8 @@ public class ZAS {
     
     HashMap<String,Integer> registers = new HashMap<>();
     HashMap<String,Integer> opcodes = new HashMap<>();
+    int currentLineNum = 0;
+    String currentLine = "";
 
     public static void main(String[] args) {
         ZAS zas = new ZAS();
@@ -74,11 +76,13 @@ public class ZAS {
 		try {
 			reader = new java.io.BufferedReader(new java.io.FileReader(
                 filename));
-			String line = reader.readLine();
-			while (line != null) {
-                this.parseLine(line);
+            this.currentLine = reader.readLine();
+            this.currentLineNum++;
+			while (this.currentLine != null) {
+                this.parseLine(this.currentLine);
                 // read next line
-				line = reader.readLine();
+				this.currentLine = reader.readLine();
+                this.currentLineNum++;
 			}
 			reader.close();
 		} catch (java.io.IOException e) {
@@ -177,29 +181,48 @@ public class ZAS {
         - RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
         */
 
+    private void tokensCheck(int needs, String[] tokens) {
+        // System.out.printf("\n[ %d ? %d ]\n", tokens.length, needs);
+        if (tokens.length < needs) {
+            throw new Panic("not enough tokens for instruction at line: "+atLine()+"\nline: "+this.currentLine);
+        }
+        int t0 = 0;
+        for (String t : tokens) {
+            // System.out.println(t);
+            if (t.equals("")) {
+                throw new Panic("\nexpected token at position "+Integer.toString(t0)+" is empty at line: "+atLine()+"\nline: "+this.currentLine);
+            }
+            t0++;
+        }
+    }
     private WordAt handleCode(String line, String opcode) {
         // change to standard interface, and call create opcode
         line = line.trim().replace(",", "");
         String[] tokens = line.split("\\W");
+
         if (DEBUG) { 
             System.err.print(" // "+opcode);
             System.err.print("["+line+"]");
             for (String token : tokens) {
-                System.err.print(" >> "+token);
+                System.err.print(" "+token);
             }
         }
         if (opcode.equals("ADD")) {
+            tokensCheck(4, tokens);
             return new3argWord(opcode, tokens[1], tokens[2], tokens[3]);
         }
         if (opcode.equals("MOV")) {
+            tokensCheck(3, tokens);
             return new3argWord(opcode, tokens[1], tokens[2], "x0");
         }
         // CLR rd │ ADD rd, x0, x0 │ rd ← 0
         if (opcode.equals("CLR")) {
+            tokensCheck(2, tokens);
             return new3argWord("ADD", tokens[1], "x0", "x0");
         }
         // INCR rd |ADD rd, rd, 1  | rd <- rd + 1
         if (opcode.equals("INCR")) {
+            tokensCheck(2, tokens);
             return newShiftWord(opcode, tokens[1], tokens[1], "1");
         }
         if (opcode.equals("HLT")) {
@@ -209,51 +232,65 @@ public class ZAS {
             return newDumpWord();
         }
         if (opcode.equals("LD")) {
+            tokensCheck(3, tokens);
             return newMemoryWord(opcode, tokens[1], tokens[2]);
         }
         if (opcode.equals("ST")) {
+            tokensCheck(3, tokens);
             return newMemoryWord(opcode, tokens[1], tokens[2]);
         }
         if (opcode.equals("BRA")) {
+            tokensCheck(2, tokens);
             return newBRZWord("BRZ", "x0", tokens[1]);
         }
         if (opcode.equals("BRZ")) {
+            tokensCheck(3, tokens);
             return newBRZWord("BRZ", tokens[1], tokens[2]);
         }
         if (opcode.equals("SUB")) {
+            tokensCheck(4, tokens);
             return new3argWord(opcode, tokens[1], tokens[2], tokens[3]);
         }
         // newShiftWord doesnt resolve last arg, it treats it as integer
         if (opcode.equals("SUBI")) {
+            tokensCheck(4, tokens);
             return newShiftWord(opcode, tokens[1], tokens[2], tokens[3]);
         }
         if (opcode.equals("ADDI")) {
+            tokensCheck(4, tokens);
             return newShiftWord(opcode, tokens[1], tokens[2], tokens[3]);
         }
         if (opcode.equals("LSH")) {
+            tokensCheck(4, tokens);
             return newShiftWord(opcode, tokens[1], tokens[2], tokens[3]);
         }
         if (opcode.equals("RSH")) {
+            tokensCheck(4, tokens);
             return newShiftWord(opcode, tokens[1], tokens[2], tokens[3]);
         }
         // DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
         if (opcode.equals("DEC")) {
+            tokensCheck(2, tokens);
             return newShiftWord("SUBI", tokens[1], tokens[1], "1");
         }
         // IN rd | Ad00 | read in a number to rd
         if (opcode.equals("IN")) {
+            tokensCheck(2, tokens);
             return newIOWord(opcode, tokens[1]);
         }
         // OUT rd | Bd00 | output a number from rd
         if (opcode.equals("OUT")) {
+            tokensCheck(2, tokens);
             return newIOWord(opcode, tokens[1]);
         }
         // RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
         if (opcode.equals("RET")) {
+            tokensCheck(1, tokens);
             return new3argWord("ADD", "xPC", "x1", "x0");
         }
         // CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
         if (opcode.equals("CALL")) {
+            tokensCheck(2, tokens);
             this.appendWord(newShiftWord("ADDI", "x1", "xPC", "1"));
             return newBRZWord("BRZ", "x0", tokens[1]);
         }
@@ -264,7 +301,7 @@ public class ZAS {
         this.instructions.add(newWord);
         this.address++;
     }
-
+    
     private WordAt newIOWord(String opcode, String rd) {
         return new WordAt(currentAddressString(), resolve(opcode), resolve(rd), 0, 0);
     }
@@ -345,6 +382,9 @@ public class ZAS {
     }
 
     private int resolve(String token) {
+        if (token.equals("") || token == null) {
+            throw new Panic("expected token is empty on line "+atLine()+"\nline: "+this.currentLine);
+        }
         // try to resolve as a symbol
         if (this.symbols.containsKey(token)) {
             return Integer.decode(this.symbols.get(token));
@@ -355,11 +395,31 @@ public class ZAS {
         }
         // otherwise try to interpret the token as address
         if (token.startsWith("0x")){
-            int newAddress = Integer.decode(token);
+            int newAddress = decodeToInt(token);
             return newAddress;            
         }
         // assume at this point the token is a forward symbol reference.
         return -1;
+    }
+
+    private int decodeToInt(String token) {
+        try {
+            return Integer.decode(token);
+        } catch (NumberFormatException e) {
+            throw new Panic("error in reading an integer: "+atLine()+" ["+token+"]"+"\nline: "+this.currentLine);
+        }
+    }
+
+    private int parseToInt(String token) {
+        try {
+            return Integer.parseInt(token);
+        } catch (NumberFormatException e) {
+            throw new Panic("error in parsing an integer: "+atLine()+" ["+token+"]"+"\nline: "+this.currentLine);
+        }
+    }
+
+    private String atLine() {
+        return Integer.toString(this.currentLineNum);
     }
 
     private void dumpSymbols() {

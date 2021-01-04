@@ -257,7 +257,13 @@ start:
 
 ### Loader/Evaluator
 
-Build a microcode evaluator.
+The a microcode evaluator has two parts: 
+
+- CPU class - a very simple POJO that handles memory and registers and cpu status.
+- Engine class - where all the processor implementation code goes
+- Simulator class which executes the simulation
+- Word class the model for the memory locations.
+  - note that the memory is only word-based (32bit quantities), NOT byte addressable
 
 load a .zas file into memory and start execution at 0x0000.
 a common thing to do is to load 0x0000 with a `BRA 0x0090` (06 00 00 90)
@@ -268,6 +274,22 @@ load PC with 0
     INCR PC
     EXECUTE IR
 ```
+
+### Ideas to ponder
+
+- how would you multiply two integers?
+- How would you make an If statement?
+- How about If/Else?
+- And loops?
+  - while loop
+  - For loop
+- How about a simple function performing an arithmetic equation?
+  - x = x + y - z
+  - x = 2 * x - y + z
+- How would you implement a simple string?
+- What needs to change for string I/O?
+- Should the I/O patternbe changed to ONLY UTF-8 in an out?
+- How would you parse an integer from a string of bytes in zas?
 
 Main Processor Data Structures
 - status (1 word)(flags??)

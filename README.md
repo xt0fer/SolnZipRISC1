@@ -7,29 +7,35 @@ Just ask permission if you want to do it in something other than Java or Python.
 
 The ZipCode RISC-1 (a 32-bit) microprocessor needs a simulator to prove to the investors that this is a world-beating design that Intel, AMD and Apple will all shake in their shoes when they see how fast and clean and cool this processor is.
 
-A CPU has what's called an Instruction Set Architecture (ISA). There are many copyrighted/proprietary ones, like ARM(Apple, Raspberry Pi/Broadcom) and x86(Intel/AMD). There are several "open source" ones as well like RISC-V. There are also many, many "demonstration" or "made up" ones. This is one of those.
+A CPU has what's called an Instruction Set Architecture (ISA). There are many copyrighted/proprietary ones, like ARM(Apple, Raspberry Pi/Broadcom) and x86_64(Intel/AMD). There are several "open source" ones as well like RISC-V. There are also many, many "demonstration" or "made up" ones. This is one of those.
 
-An ISA is a set of crafted "instructions" which are matched to a CPU design. A common design is a RISC (reduced instruction set computer) where the number of instructions is relatively low number, like say 20, which are all pretty 'regular' or uniform in size. A CISC (complex instruction set computer), on the other hand, has two major aspects that RISC does not. CISC cpus often have hundreds of instructions (x86 has more than 1500) and the instructions sizes vary (from 16-bit (2 bytes) to larger (up to 15 bytes)).
+An ISA is a set of crafted "instructions" which are matched to a CPU design. A common design is a RISC (reduced instruction set computer) where the number of instructions is relatively low number, like say 20, which are all pretty 'regular' or uniform (4 bytes, 32bits) in size. A CISC (complex instruction set computer), on the other hand, has two major aspects that RISC does not. CISC cpus often have hundreds of instructions (x86_64 has more than 1500) and the instructions sizes vary (from 16-bit (2 bytes) to larger (up to 15 bytes)).
 
-Now, why look at ZipRISC? ZipRISC1 is a pretty simple microprocessor. It also has a simple set of instructions. And while only having a few instructions, it can do anything a CISC cpu can do (theoretically). And because it looks like RISC is winning the long war against CISC.
+Now, why look at ZipRISC? Especially if it's a virtual processor? Well, ZipRISC1 is a pretty simple microprocessor. It also has a simple set of instructions. And while only having a few instructions, it can do anything a CISC cpu can do (theoretically). And because it looks like RISC is winning the long war against CISC.
 
 It has a simple internal core architecture, and a simple set of instructions. 
-It is "turing-complete". This processor is a little (very little) like the new Apple Silicon M1s, in that it has memory side-by-each with the registers (as in the memory is inside of the CPU)
-.
+It is "turing-complete". 
+This processor is a little (very little) like the new Apple Silicon M1s, in that it has memory side-by-each with the registers (as in the memory is inside of the CPU).
 Its memory is not a separate subsystem (like on an IBM PC architecture machine (which most PCs are)).
 
-The 'von neumann architecture' (look it up) is the idea of a "stored program computer'. (Is that all?) Yes, but it accounts for the vast majority of computer architectures. A computer runs a program that has been placed in its central memory, and then it starts at some location, interpreting each memory word as an instruction, each instruction having the cpu do something very simple; like say add two numbers. The cpu then goes to the next word in memory, over and over, until it is told to halt.
+The 'von neumann architecture' (look it up) is the idea of a "stored program computer'. (Is that all?) Yes, but it accounts for the vast majority of computer architectures. 
+A computer runs a program that has been placed in its central memory, and then it starts at some location, interpreting each memory word as an instruction, each instruction having the cpu do something very simple; like say add two numbers. 
+The cpu then goes to the next word in memory, over and over, until it is told to halt.
 
 So, a computer boils down to a CPU and some memory, and a few ancillary functions like input and output.
 
-Dealing with computer instructions can be hard, if you do it in binary. So we don't. We do it in this case in hexadecimal. We also don't want to do it wntirely low-level, so we invent languages where we can express our programs in a "higher level way", and then build translator programs which translate the higher level program into machine instructions.
+Dealing with computer instructions can be hard, if you do it in binary.
+So we don't.
+We do it in this case in hexadecimal.
+We also don't want to do it entirely low-level, so we invent languages where we can express our programs in a "higher level way", and then build translator programs which translate the higher level program into machine instructions.
 
 Historically, the lowest level was a "symbolic assembler", which assembled "assembly code" into instructions. That's where this lab is focused.
 
-You write programs in assembly language, specifically for the ZipRISC1, and turn it into machine coe, which you then simulate on your simulator. 
+You write programs in assembly language (The ZAS language), specifically for the ZipRISC1, and turn it into machine code, which you then simulate on your simulator. 
 
-You need to write a processor simulator. It reads in a file of ZipRISC1 machine code (.zex file), loads it into memory and starts execution. The simulation continues until either a 'Panic' (crash) or a completion of the program.
-When you start the program, you execute the instruction found at memory location 0x0000. 
+You need to write a processor simulator. It reads in a file of ZipRISC1 machine code (.zex file), loads it into memory and starts execution. 
+The simulation continues until either a 'Panic' (crash) or a completion of the program.
+When you start the program, you execute the instruction found at memory location 0x0000.
 
 Each memory location is a 32-bit "word" made up of 4 "bytes". Each byte can only contain numbers from 0-255. Memory sizes can be modified as needed. Let's start with 64K words (or 256K bytes).
 
@@ -57,17 +63,22 @@ So this lab/project has you implementing code for our ZipRISC1 processor. We hav
 
 We have also provide a very stupid, simple "assembler" which can translate ZipRISC1 Assembly (.zas file) code file (UTF-8 text) (and human readable-ish) into the ZipRISC1 executable format (.zex) (which is a UTF-* text file the simulator's loader can load into the the processor's memory.)
 
-The assembly file is a program file which tries to do some kind of simple task. 
-Each line is one of four possible layouts, and if you mess up the layout, well, you get a very simple error message. The assembler quits as soon as it finds an error, or runsuntil the input runs out, and then drops the output file. You then start the simulator on the output of the assembler and see what happens. You may get some output, an error, or maybe even a Panic. Panics are bad. Panics mean someting is very wrong with something you're trying to do.
+The assembly file is a program file which tries to do some kind of simple task.
+Each line is one of four possible layouts, and if you mess up the layout, well, you get a very simple error message. The assembler quits as soon as it finds an error, or runs until the input runs out, and then drops the output file.
+You then start the simulator on the output of the assembler and see what happens.
+You may get some output, an error, or maybe even a Panic.
+Panics are bad.
+Panics mean something is very wrong with something you're trying to do.
 
 ### To RECAP
 
-- registers: 16 32-bit named x0 to xF (PC is xF, IR is xE) (x0 is ALWAYS zero)
+- 16 registers: 32-bits wide named x0 to xF (PC is xF, IR is xE) (x0 is ALWAYS zero)
   - numbered 0 to 15
 - memory: 0x0000 - 0xFFFF (16K words!! (or 64Kbytes))
 - I/O: input/output (special registers)
-- instruction: 4 bytes, 0, 1, 2, 3
+- instruction: 4 bytes, numbered 0, 1, 2, 3
   - opcode, operand1, operand2, operand3
+- some instruction take one or two operands, some take three.
 
 ## ZipRISC1 Instructions
 
@@ -75,8 +86,14 @@ The first column is the “assembly code”, 2nd is the memory layout of the ins
 
 ### Core Instructions
 
+- rd is the destination register
+- rs, rt are "argument" registers
+- k stands for an integer constant
+- aa stands for an memory address, usually in hexadecimal
+- yes, rd, rt, & rs can be all the same register (or not)
+
 - ADD rd, rs, rt | 1dst | rd <- rs + rt
-- MOV rd, rs, 0 | 1ds0 | rd <- rs
+- MOV rd, rs, x0 | 1ds0 | rd <- rs
 - SUB rd, rs, rt | 2dst | rd <- rs - rt
 - SUBI rd, rs, k | 3dsk | rd ← rs - k
 - LSH rd, rs, k | 4dsk | rd <- rs / k ??
@@ -97,14 +114,15 @@ The first column is the “assembly code”, 2nd is the memory layout of the ins
 These are just handy, the text in the first column gets translated to the instruction in the second column.
 
 - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
-- CLR rd │ ADD rd, x0, x0 │ rd ← 0
+- CLR rd │ ADD rd, x0, x0 │ rd ← 0 + 0
 - DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
 - INCR rd |ADDI rd, rd, 1  | rd <- rd + 1
-- BRA aa │ BRZ x0, aa │ next instruction to read is at aa
+- BRA aa │ BRZ x0, aa │ branch to aa, when register zero equals 0
+  - (yes x0 is ALWAYS 0) (so think GOTO aa)
 
 ### Assembler Directives
 
-Directives included help layout code in the memory. They are kind like macros.
+Directives included help layout code in the memory. They are kind of like macros.
 
 .OR set origin address of code (load code starting at this address (hex)
 
@@ -152,6 +170,41 @@ Directives included help layout code in the memory. They are kind like macros.
 .EQ Zero 0
 .EQ OneHundred 100
 ```
+
+### Labels
+
+labels are like a text anchor or target in assembler source code. 
+When labels are used they do one of two things (currently).
+The first is that they come to represent the address of the next instruction.
+
+```
+    LD x2, 0x00FF // memory location 255 
+label1:
+    BRZ x2, end
+// bunch of code
+end:
+    HLT
+```
+
+So when the assembler is finished, `label1` and `end` will both be resolved to a specific address, but we don't know what it will be be because we don't how much code is between the two labels.
+The assembler will figure it all out and create code so that the labels point to a valid memory address.
+We also see the second use of labels on the `BRZ` line: if register x2 is zero, jump to `end`
+So labels can be used to delay figuring out what the address of the HLT instruction is, until we've assembled the entire program.
+
+Labels can also be used like junior variables.
+
+```
+// bunch of code
+maxspeed:
+.WD 55
+fueltanklevel:
+.WD 2  // 0-4 (empty, 1/4, 2/4 3/4, 4/4)
+// more code
+```
+
+Here we are using the label to stand in for a variable's name.
+The assembler will load the number into a memory word.
+Once all the code has been assembled, the label will come to point to the address of the WD directive.
 
 
 ### Sample Programs

@@ -1,0 +1,3 @@
+#!/bin/bash
+# run the Simulator
+java -Dfile.encoding=UTF-8 -cp /home/kristofer/p/ZipRISC1/ziprisc1/target/classes rocks.zipcode.Simulator $1

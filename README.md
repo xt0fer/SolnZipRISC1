@@ -1,6 +1,14 @@
 # ZipRISC1
 
-v1.2
+## Changes Immediate
+
+- re-arrange instructions to re-order opcode(labels & hexs)
+- re-arrange the register assignments??
+- add STR, LDR (or Load Indirect and Store Indirect?) (push & pop)
+- ADDI re-order
+- make one source of truth for instructions (json??)
+
+## v1.2
 
 This lab/project can be done in either Java, Javascript, Python or any other language you manage. 
 Just ask permission if you want to do it in something other than Java or Python.
@@ -72,8 +80,12 @@ Panics mean something is very wrong with something you're trying to do.
 
 ### To RECAP
 
-- 16 registers: 32-bits wide named x0 to xF (PC is xF, IR is xE) (x0 is ALWAYS zero)
+- 16 registers: 32-bits wide named x0 to xF  (x0 is ALWAYS zero)
   - numbered 0 to 15
+  - x1 is used for RA
+  - xF is PC
+  - xE is IR
+  - x8, x9, xA 
 - memory: 0x0000 - 0xFFFF (16K words!! (or 64Kbytes))
 - I/O: input/output (special registers)
 - instruction: 4 bytes, numbered 0, 1, 2, 3
@@ -119,6 +131,10 @@ These are just handy, the text in the first column gets translated to the instru
 - INCR rd |ADDI rd, rd, 1  | rd <- rd + 1
 - BRA aa │ BRZ x0, aa │ branch to aa, when register zero equals 0
   - (yes x0 is ALWAYS 0) (so think GOTO aa)
+
+* the calling convention for subroutines/functions.
+    - CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
+    - RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
 
 ### Assembler Directives
 

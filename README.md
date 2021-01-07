@@ -2,15 +2,32 @@
 
 ## Changes Immediate
 
+- set MAXREGS to 32(?)
 - re-arrange instructions to re-order opcode(labels & hexs)
 - re-arrange the register assignments??
 - add STR, LDR (or Load Indirect and Store Indirect?) (push & pop)
-- ADDI re-order
+- LDR rd, rs | 11dr0 | load rd with contents of address held by rs
+- STR rd, rs | 12dr0 | store rd into the address held by rs
+- CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
+- RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
+- pseudo PUSH rd | DECR SP; STR rd SP | sp <- sp - 1, store rd to contents of SP
+- pseudo POP rd | LDR rd, SP; INCR SP | load rd with contents SP, sp <- sp + 1
+- native ADDI re-order
 - make one source of truth for instructions (json??)
+
+## Register Usage for v1.3
+
+- x0 zero
+- x1  - RA  - return address Caller saved
+- x2, x3, x4 - function call arguments
+- x2 - function return value
+- x7, x8, x9, xA - temp regs (used inside of functions)
+- rd, rs, rt, ru - temp regs alt names 
+- xF - PC, xE - IR, xD - SP, xC - FP
 
 ## v1.2
 
-This lab/project can be done in either Java, Javascript, Python or any other language you manage. 
+This lab/project can be done in either Java, Javascript, Python or any other language you manage.
 Just ask permission if you want to do it in something other than Java or Python.
 
 The ZipCode RISC-1 (a 32-bit) microprocessor needs a simulator to prove to the investors that this is a world-beating design that Intel, AMD and Apple will all shake in their shoes when they see how fast and clean and cool this processor is.
@@ -22,7 +39,7 @@ An ISA is a set of crafted "instructions" which are matched to a CPU design. A c
 Now, why look at ZipRISC? Especially if it's a virtual processor? Well, ZipRISC1 is a pretty simple microprocessor. It also has a simple set of instructions. And while only having a few instructions, it can do anything a CISC cpu can do (theoretically). And because it looks like RISC is winning the long war against CISC.
 
 It has a simple internal core architecture, and a simple set of instructions. 
-It is "turing-complete". 
+It is "turing-complete".
 This processor is a little (very little) like the new Apple Silicon M1s, in that it has memory side-by-each with the registers (as in the memory is inside of the CPU).
 Its memory is not a separate subsystem (like on an IBM PC architecture machine (which most PCs are)).
 
@@ -85,7 +102,7 @@ Panics mean something is very wrong with something you're trying to do.
   - x1 is used for RA
   - xF is PC
   - xE is IR
-  - x8, x9, xA 
+  - x7, x8, x9, xA
 - memory: 0x0000 - 0xFFFF (16K words!! (or 64Kbytes))
 - I/O: input/output (special registers)
 - instruction: 4 bytes, numbered 0, 1, 2, 3
@@ -94,7 +111,7 @@ Panics mean something is very wrong with something you're trying to do.
 
 ## ZipRISC1 Instructions
 
-The first column is the “assembly code”, 2nd is the memory layout of the instruction (4 bytes), third is “meaning” in psuedo-code.
+The first column is the “assembly code”, 2nd is the memory layout of the instruction (4 bytes), third is “meaning” in pseudo-code.
 
 ### Core Instructions
 
@@ -132,9 +149,10 @@ These are just handy, the text in the first column gets translated to the instru
 - BRA aa │ BRZ x0, aa │ branch to aa, when register zero equals 0
   - (yes x0 is ALWAYS 0) (so think GOTO aa)
 
-* the calling convention for subroutines/functions.
-    - CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
-    - RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
+#### the calling convention for subroutines/functions.
+
+- CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
+- RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
 
 ### Assembler Directives
 

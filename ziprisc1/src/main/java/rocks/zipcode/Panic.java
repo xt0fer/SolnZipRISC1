@@ -1,5 +1,8 @@
 package rocks.zipcode;
 
+// this class is a general exception (a dogsbody) to be used throughout this project
+// to indicate an error somewhere.
+
 public class Panic extends Error {
     /**
      *

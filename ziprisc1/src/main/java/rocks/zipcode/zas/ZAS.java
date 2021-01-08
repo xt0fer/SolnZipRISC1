@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import rocks.zipcode.CPU;
+import rocks.zipcode.ISA;
 import rocks.zipcode.Panic;
 import rocks.zipcode.Word;
 
@@ -16,7 +17,7 @@ import rocks.zipcode.Word;
 
 public class ZAS {
     public static final boolean DEBUG = false;
-    public static final int MAXREGS = 16;
+    //public static final int MAXREGS = ISA.MAXREGS;
 
     ArrayList<WordAt> instructions = new ArrayList<>();
     SymbolTable symbols = new SymbolTable();
@@ -28,16 +29,18 @@ public class ZAS {
 
     public static void main(String[] args) {
         ZAS zas = new ZAS();
-        System.err.println("//**** ZipRISC1 Assembler v1.2 ****");
-        // System.err.print("args ");
-        // for (String arg : args) {
-        //     System.out.print(" ");
-        //     System.out.print(arg);
-        // }
-        // System.err.println();
+        System.err.println("//**** ZipRISC1 Assembler v1.3 ****");
+        if (DEBUG) {
+            System.err.print("args ");
+            for (String arg : args) {
+                System.out.print(" ");
+                System.out.print(arg);
+            }
+            System.err.println();    
+        }
         if (args.length == 1) {
             try {
-                zas.loadTables();
+                zas.initializeTables();
                 zas.parseFile(args[0]);
                 zas.dumpSymbols();
                 zas.outputResults();
@@ -446,7 +449,7 @@ public class ZAS {
         }
     }
 
-    private void loadTables() {
+    private void initializeTables() {
         // load up the registers table
         registers.put("x0", 0); registers.put("x1", 1); 
         registers.put("x2", 2); registers.put("x3", 3); 
@@ -471,23 +474,23 @@ public class ZAS {
         registers.put("xFP", CPU.FP);
 
         // load up opcodes
-        registers.put("ADD", 1);
-        registers.put("INCR", 1);
-        registers.put("ADDI", 12);
-        registers.put("MOV", 1);
-        registers.put("SUB", 2);
-        registers.put("SUBI", 3);
-        registers.put("LSH", 4);
-        registers.put("RSH", 5);
-        registers.put("HLT", 0);
-        registers.put("DUMP", 0x0F);
-        registers.put("BRA", 6);
-        registers.put("BRZ", 6);
-        registers.put("BGT", 7);
-        registers.put("LD", 8);
-        registers.put("ST", 9);
-        registers.put("IN", 10);
-        registers.put("OUT", 11);
+        registers.put("ADD", ISA.ADD.getOpcode());
+        registers.put("INCR", ISA.ADD.getOpcode());
+        registers.put("ADDI", ISA.ADDI.getOpcode());
+        registers.put("MOV", ISA.ADD.getOpcode());
+        registers.put("SUB", ISA.SUB.getOpcode());
+        registers.put("SUBI", ISA.SUBI.getOpcode());
+        registers.put("LSH", ISA.LSH.getOpcode());
+        registers.put("RSH", ISA.RSH.getOpcode());
+        registers.put("HLT", ISA.HLT.getOpcode());
+        registers.put("DUMP", ISA.DUMP.getOpcode());
+        registers.put("BRA", ISA.BRZ.getOpcode());
+        registers.put("BRZ", ISA.BRZ.getOpcode());
+        registers.put("BGT", ISA.BGT.getOpcode());
+        registers.put("LD", ISA.LD.getOpcode());
+        registers.put("ST", ISA.ST.getOpcode());
+        registers.put("IN", ISA.IN.getOpcode());
+        registers.put("OUT", ISA.OUT.getOpcode());
 
         
     }

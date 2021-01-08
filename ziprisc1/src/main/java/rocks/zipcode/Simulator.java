@@ -2,26 +2,33 @@ package rocks.zipcode;
 
 import java.io.File;
 
+/* this class is the main entry point for 
+ * the Simulator of the ZipRISC1 processor 
+ * */
+
 public class Simulator {
     private CPU cpu;
+    public static boolean DEBUG = false;
 
     public Simulator(CPU cpu) {
         this.cpu = cpu;
     }
 
     public static void main(String[] args) {
-        Simulator s = new Simulator(new CPU(0x0));
+        Simulator sim = new Simulator(new CPU(0x0));
         System.err.println("**** ZipRISC1 simulation ****\n");
-        System.err.print("args ");
-        for (String arg : args) {
-            System.out.print(" ");
-            System.out.print(arg);
+        if (DEBUG) {
+            System.err.print("args ");
+            for (String arg : args) {
+                System.out.print(" ");
+                System.out.print(arg);
+            }
+            System.err.println();    
         }
-        System.err.println();
         if (args.length == 1) {
             try {
-                s.loadZEXFile(args[0]); // s.load();
-                s.run();
+                sim.loadZEXFile(args[0]); // load the machine code to memory
+                sim.run(); // start the machine code
             } catch (Panic e) {
                 e.printStackTrace();
                 java.lang.System.exit(-1);
@@ -35,13 +42,14 @@ public class Simulator {
 
     private void run() {
         Engine engine = new Engine(this.cpu);
-        engine.startAt(0x0000);
+        engine.runAt(0x0000);
     }
 
     private void loadZEXFile(String executable_filename)  {
         File tempFile = new File(executable_filename);
         if (tempFile.exists() != true)
             throw new Panic("Panic: input executable file not found");
+
         // open and load each line.
         java.io.BufferedReader reader;
 		try {
@@ -49,8 +57,12 @@ public class Simulator {
                 executable_filename));
 			String line = reader.readLine();
 			while (line != null) {
-                System.err.println(line);
-                this.loadMemory(line);
+                if (DEBUG) {
+                    System.err.println(line);
+                }
+
+                this.loadMemoryLocation(line);
+
                 // read next line
 				line = reader.readLine();
 			}
@@ -60,7 +72,7 @@ public class Simulator {
 		}
     }
 
-    private void loadMemory(String line)  {
+    private void loadMemoryLocation(String line)  {
         // line should be in this format:
         // hex_memory_address byte0 byte1 byte2 byte3 // comments
         

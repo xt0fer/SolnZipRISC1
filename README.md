@@ -2,28 +2,30 @@
 
 ## Changes Immediate
 
-- set MAXREGS to 32(?)
 - re-arrange instructions to re-order opcode(labels & hexs)
-- re-arrange the register assignments??
+- native ADDI re-order
 - add STR, LDR (or Load Indirect and Store Indirect?) (push & pop)
 - LDR rd, rs | 11dr0 | load rd with contents of address held by rs
 - STR rd, rs | 12dr0 | store rd into the address held by rs
+
+- pseudos
 - CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
 - RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
 - pseudo PUSH rd | DECR SP; STR rd SP | sp <- sp - 1, store rd to contents of SP
 - pseudo POP rd | LDR rd, SP; INCR SP | load rd with contents SP, sp <- sp + 1
-- native ADDI re-order
-- make one source of truth for instructions (json??)
+
+#### done
+
+- set MAXREGS to 32(?)
+- re-arrange the register assignments??
+- make one source of truth for instructions (json??) (ISA enum)
 
 ## Register Usage for v1.3
 
-- x0 zero
-- x1  - RA  - return address Caller saved
 - x2, x3, x4 - function call arguments
 - x2 - function return value
 - x7, x8, x9, xA - temp regs (used inside of functions)
 - rd, rs, rt, ru - temp regs alt names 
-- xF - PC, xE - IR, xD - SP, xC - FP
 
 ## v1.2
 
@@ -64,23 +66,20 @@ When you start the program, you execute the instruction found at memory location
 
 Each memory location is a 32-bit "word" made up of 4 "bytes". Each byte can only contain numbers from 0-255. Memory sizes can be modified as needed. Let's start with 64K words (or 256K bytes).
 
-### ZipRISC1-16/32(256K)
+### ZipRISC1-32/32(64K)
 
-There are 16 registers, numbered 0 to 15 (or x0 to xF). Registers are super-fast places inside a cpu which are used to perform specific instructions. You can
+There are 16 registers, numbered 0 to 31 (or x0 to x1F). Registers are super-fast places inside a cpu which are used to perform specific instructions. You can
 
 - perform arithmetic on a register
 - move 32-bit words from one register to another
 - perform simple input and output from/to a register
 - move a word in memory to/from a register
 
-Register 15 (F) is used as the Program Counter (PC). It contains the address of the next instruction to be executed. Register 14 is the Instruction Register. It is the place where the current instruction is placed just before it is executed. Register 0 is 'hardwired' to zero (which proves to be surprisingly handy). There are also registers assigned to the stack pointer, the frame pointer, the return address, and to the parameters of a function.
+Register xPC is used as the Program Counter (PC). It contains the address of the next instruction to be executed. Register xIR is the Instruction Register. It is the place where the current instruction is placed just before it is executed. Register 0 (x0 or zero) is 'hardwired' to zero (which proves to be surprisingly handy). There are also registers assigned to the stack pointer, the frame pointer, the return address, and to the parameters of a function.
 
 The processor runs a program from 0x0000 until it told to halt (HLT). When it is told to HALT, and no errors have occurred, you can consider your program to have "run".
 
-### ZipRISC1-32/32(4M)
-
-This processor version has 32 registers, it is still a 32-bit cpu, but has 4 megabytes of memory. It's important that you write your cpu simulator so that the same code works for both versions of the processor.
-Currently, in version 1.2 of ths lab, this second version of the processor is not yet completely defined.
+This processor version has 32 registers, it is still a 32-bit cpu, but has 4 megabytes of memory. 
 
 Neither cpu currently has the notion of "floating point"; that is left as an exercise for the student. 
 
@@ -97,12 +96,7 @@ Panics mean something is very wrong with something you're trying to do.
 
 ### To RECAP
 
-- 16 registers: 32-bits wide named x0 to xF  (x0 is ALWAYS zero)
-  - numbered 0 to 15
-  - x1 is used for RA
-  - xF is PC
-  - xE is IR
-  - x7, x8, x9, xA
+- 32 registers: 32-bits wide named x0 to x1F  (x0 is ALWAYS zero)
 - memory: 0x0000 - 0xFFFF (16K words!! (or 64Kbytes))
 - I/O: input/output (special registers)
 - instruction: 4 bytes, numbered 0, 1, 2, 3
@@ -395,7 +389,7 @@ Then, think about these ideas...
 Main Processor Data Structures
 
 - status (1 word)(flags??)
-- registers (16 words)
+- registers (32 words)
 - memory (16384 words)
 - input word
 - output word

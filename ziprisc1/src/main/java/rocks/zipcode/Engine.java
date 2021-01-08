@@ -3,63 +3,33 @@ package rocks.zipcode;
 /* this Engine should be the 
  * "microcode" runner, the object that 
  * does all the actual work 
- * of the processor */
+ * of the processor.
+ * It implements all the BASE (or core) instructions,
+ * using the "cpu" object provided
+ */
 
 public class Engine {
 
     private CPU cpu = null;
+    private int instructionsRun = 0;
 
 	public Engine(CPU cpu) {
         this.cpu = cpu;
     }
     
-    // opcodes
-    // - HLT | 0000 | halt.
-    public final static int HLT = 0x00;
-    // - HCF | 0FFF | halt and catch fire.
-    public final static int HCF = 0x00;
-    // - BRZ rd, aa | 6daa | branch to aa on rd == 0
-    public final static int BRZ = 0x6;
-    // - LD rd, aa | 8daa | load rd with value of memory loc aa
-    public final static int LD = 0x8;
-    // - ADD rd, rs, rt | 1dst | rd <- rs + rt
-    public final static int ADD = 0x1;
-    // - DUMP | F000 | print out registers, machine state and memory
-    public final static int DUMP = 0x0F;
-
-    // and then
-    // - BGT rd, aa | 7daa | branch to aa on rd > 0
-    public final static int BGT = 7;
-    // - ST rs, aa | 9saa | store rd value to memory loc aa
-    public final static int ST = 9;
-    // - SUB rd, rs, rt | 2dst | rd <- rs - rt
-    public final static int SUB = 2;
-    // - SUBI rd, rs, k | 3dsk | rd ← rs - k
-    public final static int SUBI = 3;
-    // - ADDI rd, rs, k | Cdsk | rd ← rs - k
-    public final static int ADDI = 12;
-    // - IN rd | Ad00 | read in a number to rd
-    public final static int IN = 10;
-    // - OUT rd | Bd00 | output a number from rd
-    public final static int OUT = 11;
-
-    // - LSH rd, rs, k | 4dsk | rd <- rs << k 
-    public final static int LSH = 4;
-    // - RSH rd, rs, k | 5dsk | rd <- rs >> k 
-    public final static int RSH = 5;
-
-    
-
-    public void startAt(int initial_address)  {
+    public void runAt(int initial_address)  {
         if (initial_address >= CPU.MEMORY_SIZE) {
             throw new Panic("memory violation");
         }
+        long startTime = System.nanoTime();
 
         // set program counter to initial address
         // it should be an instruction to run
         cpu.set(CPU.PC, initial_address);
         
         cpu.setRunnable(); // start cpu
+        //int haltOpcode = ISA.HLT.getOpcode();
+
         while (cpu.isRunnable()) {
             // LOAD current instruction into IR
             cpu.wset(CPU.IR, cpu.fetch(cpu.get(CPU.PC)));
@@ -68,8 +38,17 @@ public class Engine {
             // execute current instruction
             this.decodeAndExecute(cpu.opcode(),
                 cpu.arg1(), cpu.arg2(), cpu.arg3());
+            this.instructionsRun += 1;
+            // if (cpu.opcode().getOpcode() == haltOpcode) {
+            //     System.err.println("FORCE HALT");
+            //     break;
+            // }
         }
+        long endTime = System.nanoTime();
         // on Exit
+        System.err.println("...final cpu state...");
+        long duration = (endTime - startTime)/1000000;  //divide by 1000000 to get milliseconds.   
+        System.err.printf("[%d] total instructions run in (%d)ms.\n", this.instructionsRun, duration);
         this.cpu.dumpState();
 	}
 
@@ -80,55 +59,63 @@ public class Engine {
     // Unless, heh heh, you want to do a map of functions (lambdas).
     //
     // decodeAndExecute the instruction held currently in CPU.IR
-    private void decodeAndExecute(int opcode, int arg1, int arg2, int arg3) {
+    private void decodeAndExecute(ISA opcode, int arg1, int arg2, int arg3) {
         switch (opcode) {
-            case Engine.HLT:
+            case HLT:
                 cpu.haltCPU();
                 break;
-            case Engine.DUMP:
+            // case HCF:
+            //     System.err.println("...halting and catch fire...");
+            //     cpu.haltCPU();
+            //     System.err.println("...what's that smell?...");
+            //     System.err.println("...oh damn...");
+            //     break;
+            case DUMP:
+                System.err.println("...dumping cpu state due to DUMP...");
                 cpu.dumpState();
                 break;
-            case Engine.BRZ:
+            case BRZ:
                 branchOnZero(arg1, arg2, arg3);
                 break;
-            case Engine.BGT:
+            case BGT:
                 branchOnGreater(arg1, arg2, arg3);
                 break;
-            case Engine.ADD:
+            case ADD:
                 add(arg1, arg2, arg3);
                 break;
-            case Engine.SUB:
+            case SUB:
                 subtract(arg1, arg2, arg3);
                 break;
-            case Engine.SUBI:
+            case SUBI:
                 subtractImmediate(arg1, arg2, arg3);
                 break;
-            case Engine.ADDI:
+            case ADDI:
                 addImmediate(arg1, arg2, arg3);
                 break;
             
-            case Engine.LD:
+            case LD:
                 loadFromMemory(arg1, arg2, arg3);
                 break;
-            case Engine.ST:
+            case ST:
                 storeToMemory(arg1, arg2, arg3);
                 break;
                 
-            case Engine.IN:
+            case IN:
                 inputToReg(arg1, arg2, arg3);
                 break;
-            case Engine.OUT:
+            case OUT:
                 outputFromReg(arg1, arg2, arg3);
                 break;
             
-            case Engine.LSH:
+            case LSH:
                 leftShift(arg1, arg2, arg3);
                 break;
-            case Engine.RSH:
+            case RSH:
                 rightShift(arg1, arg2, arg3);
                 break;
             default:
                 // perform a NOP
+                System.err.println("NOP.");
                 ;
         }
     }
@@ -217,6 +204,5 @@ public class Engine {
         }
         return addr;
     }
-
 
 }

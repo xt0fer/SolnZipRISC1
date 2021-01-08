@@ -1,24 +1,24 @@
 package rocks.zipcode;
 
-import java.io.IOException;
 import java.lang.System;
 import java.util.Scanner;
 
-public class CPU implements RISC1Core {
+// class handles the registers, the memory, i/o (ints), and the "status word"
 
-    // class handles the registers, the memory, i/o (ints), and the "status word"
-    //
-    // convenience constants for the last two registers
-    final static int MAXREGS = 16;
-    public final static int PC = MAXREGS-1; // Program Counter F
-    public final static int IR = MAXREGS-2; // Instruction Decode Register E
-    public final static int SP = MAXREGS-3; // Stack Pointer D
-    public final static int FP = MAXREGS-4; // Frame Pointer C
-    public final static int RA = 1; // use x1 for return address (see CALL and RET)
+public class CPU implements RISC1Core {
+   //
+    // convenience constants for some dedicated registers
+    public static final int MAXREGS = 32;
+    public static final int MEMORY_SIZE = 0x100;
+
+    public static final int PC = MAXREGS-1; // Program Counter 1F
+    public static final int IR = MAXREGS-2; // Instruction Decode Register 1E
+    public static final int SP = MAXREGS-3; // Stack Pointer 1D
+    public static final int FP = MAXREGS-4; // Frame Pointer 1C
+    public static final int RA = 1; // use x1 for return address (see CALL and RET)
 
     private Integer[] registerFile = new Integer[MAXREGS];
 
-    final static int MEMORY_SIZE = 0x100; 
     private Word[] memory = new Word[MEMORY_SIZE];
     private Word instruction = new Word(0);
 
@@ -60,6 +60,7 @@ public class CPU implements RISC1Core {
     }
     public boolean haltCPU() {
         this.statusWord = -1;
+        // System.err.println("setting cpu status to -1");
         return true;
     }
 
@@ -97,17 +98,20 @@ public class CPU implements RISC1Core {
     @Override
     public void wset(int register, Word w) {
         int i = w.getInt();
-        if (register == 0xE) {
+        if (register == CPU.IR) {
             instruction.set(i);
-            System.err.printf("instruction: [%s]\n", instruction.toString());
+            // System.err.printf("instruction: [%s]\n", instruction.toString());
         }
         this.set(register, i);
     }
 
     // convenience methods for Instruction decode.
 
-    public int opcode() {
-        return instruction.opcode();
+    public ISA opcode() {
+        // map an int opcode to a ISA enum
+        int opInt = instruction.opcode();
+        ISA opcode = ISA.getISA(opInt);
+        return opcode;
     }
 
     public int arg1() {

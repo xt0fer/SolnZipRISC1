@@ -7,8 +7,6 @@ public enum ISA {
     // opcodes - Instruction Set
     // - HLT | 0000 | halt.
     HLT(0x00),
-    // - HCF | 0FFF | halt and catch fire.
-    // HCF(0x00),
 
     // ADDs
     // - ADD rd, rs, rt | 1dst | rd <- rs + rt
@@ -69,6 +67,9 @@ public enum ISA {
 
     // - DUMP | F000 | print out registers, machine state and memory
     DUMP(0x1F), // 31
+
+    // - HCF | 0x20FFF | halt and catch fire.
+    HCF(0x20), // Halt and Catch Fire (unimplemented instruction)
     ;
 
 

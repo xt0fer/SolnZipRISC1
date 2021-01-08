@@ -111,6 +111,9 @@ public class CPU implements RISC1Core {
         // map an int opcode to a ISA enum
         int opInt = instruction.opcode();
         ISA opcode = ISA.getISA(opInt);
+        if (opcode == null) {
+            return ISA.HCF;
+        }
         return opcode;
     }
 
@@ -167,7 +170,8 @@ public class CPU implements RISC1Core {
 
     @Override
     public void outputInt(int i) {
-        System.out.println("> "+i);
+        this.outputWord = i;
+        System.out.println("> " + this.outputWord);
     }
 
     public void dumpState() {

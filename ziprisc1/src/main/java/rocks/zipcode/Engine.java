@@ -115,8 +115,10 @@ public class Engine {
                 break;
             default:
                 // perform a NOP
-                System.err.println("NOP.");
-                ;
+                System.err.println("...dumping cpu state due to Panic...");
+                cpu.dumpState();
+                String irname = String.format("0x%2X", CPU.IR);
+                throw new Panic("Unimplemented instruction: look at contents of register "+irname);
         }
     }
     

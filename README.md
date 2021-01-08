@@ -2,11 +2,6 @@
 
 ## Changes Immediate
 
-- re-arrange instructions to re-order opcode(labels & hexs)
-- native ADDI re-order
-- add STR, LDR (or Load Indirect and Store Indirect?) (push & pop)
-- LDR rd, rs | 11dr0 | load rd with contents of address held by rs
-- STR rd, rs | 12dr0 | store rd into the address held by rs
 
 - pseudos
 - CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
@@ -19,6 +14,11 @@
 - set MAXREGS to 32(?)
 - re-arrange the register assignments??
 - make one source of truth for instructions (json??) (ISA enum)
+- re-arrange instructions to re-order opcode(labels & hexs)
+- native ADDI re-order
+- add STR, LDR (or Load Indirect and Store Indirect?) (push & pop)
+- LDR rd, rs | 11dr0 | load rd with contents of address held by rs
+- STR rd, rs | 12dr0 | store rd into the address held by rs
 
 ## Register Usage for v1.3
 

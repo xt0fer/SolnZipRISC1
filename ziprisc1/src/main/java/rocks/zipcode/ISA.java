@@ -33,39 +33,39 @@ public enum ISA {
     // - AND rd, rs, rt 
     AND(9),
     // - OR rd, rs, rt | A
-    OR(10),
+    OR(0xA),
     // - XOR rd, rs, rt | B
-    XOR(11),
+    XOR(0xB),
 
     // LD rd, aa | Cdaa | load rd with value of memory loc aa
-    LD(12),
+    LD(0xC),
     // LDI rd, aa | Ddaa | load rd with address value aa
-    LDI(13),
+    LDI(0xD),
     // - ST rs, aa | Esaa | store rd value to memory loc aa
-    ST(14),
+    ST(0xE),
     // LDR rd, rs |F| load rd with contents of memory(rs)
-    LDR(15),
+    LDR(0xF),
     // STR rd, rs | 10 | store rd with contents of memory(rs)
-    STR(16),
+    STR(0x10),
 
     // - IN rd | 0x11d00 | read in a integer to rd
-    IN(17),
+    IN(0x11),
     // - OUT rd |0x12d00 | output a integer from rd
-    OUT(18),
+    OUT(0x12),
     // INB rd | 0x13d00 | read a byte from stdin
-    INB(19),
+    INB(0x13),
     // OUTB rd | 0x14d00 | write a byte to stdout
-    OUTB(20),
+    OUTB(0x14),
 
-    // hole: 21, 22
+    // hole: 0x15, 0x16
 
     // more branches for completeness
     // BLT  rd, aa | 0x17daa | branch to aa if rd less than 0
-    BLT(23),
+    BLT(0x17),
     // BRNZ rd, aa | 0x18daa | branch to aa if rd NOT equal to zero
-    BRNZ(24),
+    BRNZ(0x18),
     // BLE rd, aa | 0x19daa | branch to aa if rd less than or equal to zero
-    BLE(25),
+    BLE(0x19),
 
 
     // - DUMP | F000 | print out registers, machine state and memory

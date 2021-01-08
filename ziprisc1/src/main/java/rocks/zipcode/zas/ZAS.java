@@ -292,6 +292,19 @@ public class ZAS {
             this.appendWord(newShiftWord("ADDI", "x1", "xPC", "1"));
             return newBRZWord("BRZ", "x0", tokens[1]);
         }
+        // pseudo PUSH rd | DECR SP; STR rd SP | sp <- sp - 1, store rd to contents of SP
+        if (opcode.equals("PUSH")) {
+            tokensCheck(1, tokens);
+            this.appendWord(newShiftWord("SUBI", "xSP", "xSP", "1"));
+            return newShiftWord("STR", tokens[1], "xSP", "0");
+        }
+        // pseudo POP rd | LDR rd, SP; INCR SP | load rd with contents SP, sp <- sp + 1
+        if (opcode.equals("POP")) {
+            tokensCheck(1, tokens);
+            newShiftWord("LDR", tokens[1], "xSP", "0");
+            return newShiftWord("ADDI", "xSP", "xSP", "1");
+        }
+        // otherwise output deadbeef
         return deadbeef();
     }
 
@@ -318,7 +331,7 @@ public class ZAS {
         String a2,
         String a3) {
         int immed = Integer.parseInt(a3);
-        // System.err.println("\nshift "+a3+" immed "+immed);
+        System.err.printf(":: shiftword %s .. %d \n", a3, immed);
         return new WordAt(currentAddressString(),
             resolve(opcode), resolve(a1), resolve(a2), immed);
     }

@@ -11,7 +11,7 @@ public enum ISA {
     // ADDs
     // - ADD rd, rs, rt | 1dst | rd <- rs + rt
     ADD(1),
-    // - ADDI rd, rs, k | Cdsk | rd ← rs - k
+    // - ADDI rd, rs, k | Cdsk | rd ← rs + k
     ADDI(2),
 
     // SUBs
@@ -37,25 +37,27 @@ public enum ISA {
     // - XOR rd, rs, rt | B
     XOR(11),
 
-    // - LD rd, aa | Cdaa | load rd with value of memory loc aa
+    // LD rd, aa | Cdaa | load rd with value of memory loc aa
     LD(12),
-    // - ST rs, aa | Dsaa | store rd value to memory loc aa
-    ST(13),
-    // LDR |E|- load reg indirect
-    LDR(14),
-    // STR | F |- store reg indirect
-    STR(15),
+    // LDI rd, aa | Ddaa | load rd with address value aa
+    LDI(13),
+    // - ST rs, aa | Esaa | store rd value to memory loc aa
+    ST(14),
+    // LDR rd, rs |F| load rd with contents of memory(rs)
+    LDR(15),
+    // STR rd, rs | 10 | store rd with contents of memory(rs)
+    STR(16),
 
-    // - IN rd | 0x10d00 | read in a integer to rd
-    IN(16),
-    // - OUT rd |0x11d00 | output a integer from rd
-    OUT(17),
-    // INB rd | 0x12d00 | read a byte from stdin
-    INB(18),
-    // OUTB rd | 0x13d00 | write a byte to stdout
-    OUTB(19),
+    // - IN rd | 0x11d00 | read in a integer to rd
+    IN(17),
+    // - OUT rd |0x12d00 | output a integer from rd
+    OUT(18),
+    // INB rd | 0x13d00 | read a byte from stdin
+    INB(19),
+    // OUTB rd | 0x14d00 | write a byte to stdout
+    OUTB(20),
 
-    // hole: 20, 21, 22
+    // hole: 21, 22
 
     // more branches for completeness
     // BLT  rd, aa | 0x17daa | branch to aa if rd less than 0
@@ -64,6 +66,7 @@ public enum ISA {
     BRNZ(24),
     // BLE rd, aa | 0x19daa | branch to aa if rd less than or equal to zero
     BLE(25),
+
 
     // - DUMP | F000 | print out registers, machine state and memory
     DUMP(0x1F), // 31

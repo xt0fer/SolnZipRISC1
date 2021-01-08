@@ -100,7 +100,7 @@ public class CPU implements RISC1Core {
         int i = w.getInt();
         if (register == CPU.IR) {
             instruction.set(i);
-            // System.err.printf("instruction: [%s]\n", instruction.toString());
+            System.err.printf("// at %04X : [%s]\n", this.get(CPU.PC), instruction.toString());
         }
         this.set(register, i);
     }

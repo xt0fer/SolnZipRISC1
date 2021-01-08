@@ -35,6 +35,7 @@ public class Engine {
             cpu.wset(CPU.IR, cpu.fetch(cpu.get(CPU.PC)));
             // INCREMENT Program Counter
             cpu.set(CPU.PC, cpu.get(CPU.PC)+1);
+
             // execute current instruction
             this.decodeAndExecute(cpu.opcode(),
                 cpu.arg1(), cpu.arg2(), cpu.arg3());
@@ -96,10 +97,19 @@ public class Engine {
             case LD:
                 loadFromMemory(arg1, arg2, arg3);
                 break;
+            case LDI:
+                loadImmediate(arg1, arg2, arg3);
+                break;
             case ST:
                 storeToMemory(arg1, arg2, arg3);
                 break;
-                
+            case LDR:
+                loadRegFromReg(arg1, arg2, arg3);
+                break;
+            case STR: 
+                storeRegFromReg(arg1, arg2, arg3);
+                break;
+            
             case IN:
                 inputToReg(arg1, arg2, arg3);
                 break;
@@ -123,6 +133,17 @@ public class Engine {
     }
     
     // Instruction Implementations.
+
+    private void storeRegFromReg(int arg1, int arg2, int arg3) {
+        int address = cpu.get(arg2);
+        Word tw = cpu.wget(arg1);
+        cpu.store(address, tw);
+    }
+
+    private void loadRegFromReg(int arg1, int arg2, int arg3) {
+        int address = cpu.get(arg2);
+        cpu.wset(arg1, cpu.fetch(address));
+    }
 
     private void rightShift(int arg1, int arg2, int arg3) {
         cpu.set(arg1, cpu.get(arg2) >> arg3);
@@ -164,29 +185,26 @@ public class Engine {
     private void storeToMemory(int arg1, int arg2, int arg3) {
         int address = makeAddress(arg2, arg3);
         Word tw = cpu.wget(arg1);
-        try {
-            cpu.store(address, tw);
-        } catch (Panic e) {
-            e.printStackTrace();
-        }
+        cpu.store(address, tw);
     }
 
     // LD
     private void loadFromMemory(int arg1, int arg2, int arg3) {
         int address = makeAddress(arg2, arg3);
         Word tw = new Word(0);
-        try {
-            tw = cpu.fetch(address);
-        } catch (Panic e) {
-            e.printStackTrace();
-        }
+        tw = cpu.fetch(address);
         cpu.wset(arg1, tw);
+    }
+
+    // LDI loadImmediate
+    private void loadImmediate(int arg1, int arg2, int arg3) {
+        int address = makeAddress(arg2, arg3);
+        cpu.set(arg1, address);
     }
 
     // ADD
     private void add(int arg1, int arg2, int arg3) {
-        int t = cpu.get(arg2) + cpu.get(arg3);
-        cpu.set(arg1, t);
+        cpu.set(arg1, cpu.get(arg2) + cpu.get(arg3));
     }
 
     // BRZ

@@ -16,7 +16,7 @@ import rocks.zipcode.Word;
  */
 
 public class ZAS {
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     //public static final int MAXREGS = ISA.MAXREGS;
 
     ArrayList<WordAt> instructions = new ArrayList<>();
@@ -31,10 +31,10 @@ public class ZAS {
         ZAS zas = new ZAS();
         System.err.println("//**** ZipRISC1 Assembler v1.3 ****");
         if (DEBUG) {
-            System.err.print("args ");
+            System.err.print("// args ");
             for (String arg : args) {
-                System.out.print(" ");
-                System.out.print(arg);
+                System.err.print(" ");
+                System.err.print(arg);
             }
             System.err.println();    
         }
@@ -96,7 +96,7 @@ public class ZAS {
 
     private void parseLine(String line) {
 
-        if (DEBUG) System.err.print("> ");
+        if (DEBUG) System.err.print("//> ");
         String lineNoComments = line;
         int index = line.indexOf("//");
         if (index >= 0) {
@@ -199,7 +199,7 @@ public class ZAS {
         }
         if (opcode.equals("MOV")) {
             tokensCheck(3, tokens);
-            return new3argWord(opcode, tokens[1], tokens[2], "x0");
+            return new3argWord("ADD", tokens[1], tokens[2], "x0");
         }
         // CLR rd │ ADD rd, x0, x0 │ rd ← 0
         if (opcode.equals("CLR")) {
@@ -211,6 +211,14 @@ public class ZAS {
             tokensCheck(2, tokens);
             return newShiftWord(opcode, tokens[1], tokens[1], "1");
         }
+        if (opcode.equals("LDR")) {
+            tokensCheck(2, tokens);
+            return newShiftWord(opcode, tokens[1], tokens[2], "0");
+        }
+        if (opcode.equals("STR")) {
+            tokensCheck(2, tokens);
+            return newShiftWord(opcode, tokens[1], tokens[2], "0");
+        }
         if (opcode.equals("HLT")) {
             return newHaltWord();
         }
@@ -218,6 +226,10 @@ public class ZAS {
             return newDumpWord();
         }
         if (opcode.equals("LD")) {
+            tokensCheck(3, tokens);
+            return newMemoryWord(opcode, tokens[1], tokens[2]);
+        }
+        if (opcode.equals("LDI")) {
             tokensCheck(3, tokens);
             return newMemoryWord(opcode, tokens[1], tokens[2]);
         }
@@ -280,7 +292,11 @@ public class ZAS {
             this.appendWord(newShiftWord("ADDI", "x1", "xPC", "1"));
             return newBRZWord("BRZ", "x0", tokens[1]);
         }
-        return newHCFWord();
+        return deadbeef();
+    }
+
+    private WordAt deadbeef() {
+        return new WordAt(currentAddressString(), 0xDE, 0xAD, 0xBE, 0xEF);
     }
 
     private void appendWord(WordAt newWord) {
@@ -304,8 +320,7 @@ public class ZAS {
         int immed = Integer.parseInt(a3);
         // System.err.println("\nshift "+a3+" immed "+immed);
         return new WordAt(currentAddressString(),
-        resolve(opcode), resolve(a1), 
-        resolve(a2), immed);
+            resolve(opcode), resolve(a1), resolve(a2), immed);
     }
 
     private WordAt newBRZWord(String opcode, String rd, String aa) {
@@ -323,7 +338,7 @@ public class ZAS {
         return newWord;
     }
 
-    // both LD and ST
+    // LD, LDI and ST
     private WordAt newMemoryWord(String opcode, String a1, String a2) {
         int addr = resolve(a2);
         WordAt newWord = new WordAt(currentAddressString(),
@@ -337,7 +352,7 @@ public class ZAS {
             newWord.undefineForwardRef(a2);
         }
         return newWord;
-}
+    }
 
     private WordAt newDumpWord() {
         return new WordAt(currentAddressString(), 0x0F, 0, 0, 0);
@@ -471,7 +486,10 @@ public class ZAS {
         registers.put("BRZ", ISA.BRZ.getOpcode());
         registers.put("BGT", ISA.BGT.getOpcode());
         registers.put("LD", ISA.LD.getOpcode());
+        registers.put("LDI", ISA.LDI.getOpcode());
         registers.put("ST", ISA.ST.getOpcode());
+        registers.put("LDR", ISA.LDR.getOpcode());
+        registers.put("STR", ISA.STR.getOpcode());
         registers.put("IN", ISA.IN.getOpcode());
         registers.put("OUT", ISA.OUT.getOpcode());
 

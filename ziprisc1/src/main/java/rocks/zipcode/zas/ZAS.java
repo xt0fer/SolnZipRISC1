@@ -155,24 +155,7 @@ public class ZAS {
         return String.format("0x%04X", this.address);
     }
 
-        /*
-         * Just for reference
-         * INSTRUCTIONs
-        - ADD rd, rs, rt | 1dst | rd <- rs + rt
-        - SUB rd, rs, rt | 2dst | rd <- rs - rt
-        - SUBI rd, rs, k | 3dsk | rd ← rs - k
-        - LSH rd, rs, k | 4dsk | rd <- rs / k ??
-        - RSH rd, rs, k | 5dsk | rd <- rs * k ??
-        - BRZ rd, aa | 6daa | branch to aa on rd == 0
-        - BGT rd, aa | 7daa | branch to aa on rd > 0
-        - LD rd, aa | 8daa | load rd with value of memory loc aa
-        - ST rs, aa | 9saa | store rd value to memory loc aa
-        - HLT | 0000 | halt.
-        - HCF | 0FFF | halt and catch fire.
-        - IN rd | Ad00 | read in a number to rd
-        - OUT rd | Bd00 | output a number from rd
-        - ADDI rd, rs, k │ Cdsk │ rd ← rs + k
-        - DUMP | F000 | print out registers, machine state and memory
+/*
          * PSEUDOs
         - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
         - CLR rd │ ADD rd, x0, x0 │ rd ← 0

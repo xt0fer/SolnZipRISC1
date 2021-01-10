@@ -202,5 +202,6 @@ public class CPU implements RISC1Core {
             }
             i++;
         }
+        System.err.println("==== ");
     }
 }

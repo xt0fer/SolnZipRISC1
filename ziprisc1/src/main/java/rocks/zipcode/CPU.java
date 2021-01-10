@@ -100,7 +100,7 @@ public class CPU implements RISC1Core {
         int i = w.getInt();
         if (register == CPU.IR) {
             instruction.set(i);
-            System.err.printf("// at %04X : [%s]\n", this.get(CPU.PC), instruction.toString());
+            System.err.printf("// PC@ %04X : [%s]\n", this.get(CPU.PC), instruction.toString());
         }
         this.set(register, i);
     }
@@ -180,17 +180,25 @@ public class CPU implements RISC1Core {
         int i = 0;
         for (Integer reg : this.registerFile) {
             if (reg != 0) {
-                System.err.printf("%X - %08X - %d\n", i, reg, reg );
+                System.err.printf("%02X - 0x%08X - %d\n", i, reg, reg );
             }
             i++;
         }
 
         // if the contents of memory Word is set to zero, do not DUMP
         i = 0;
+        boolean hole = false;
         System.err.println("==== Memory");
         for (Word w : memory) {
             if (w.isZero() == false) {
+                hole = false;
                 System.err.printf("0x%04X - %s\n", i, w.toString() );
+            } else {
+                if (hole == false) {
+                    System.err.printf("0x%04X - %s\n", i, w.toString() );
+                    System.err.printf(":\n");
+                    hole=true;
+                }
             }
             i++;
         }

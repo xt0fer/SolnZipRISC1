@@ -162,7 +162,6 @@ public class Engine {
     }
 
     private void subtractImmediate(int arg1, int arg2, int arg3) {
-        System.err.printf(":: subi %d %d %d\n",arg1,arg2, arg3);
         cpu.set(arg1, cpu.get(arg2) - arg3);
     }
 

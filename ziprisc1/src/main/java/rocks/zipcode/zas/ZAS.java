@@ -331,7 +331,6 @@ public class ZAS {
         String a2,
         String a3) {
         int immed = Integer.parseInt(a3);
-        System.err.printf(":: shiftword %s .. %d \n", a3, immed);
         return new WordAt(currentAddressString(),
             resolve(opcode), resolve(a1), resolve(a2), immed);
     }

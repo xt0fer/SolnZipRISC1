@@ -16,7 +16,7 @@ public class Simulator {
 
     public static void main(String[] args) {
         Simulator sim = new Simulator(new CPU(0x0));
-        System.err.println("**** ZipRISC1 simulation ****\n");
+        System.err.println("**** ZipRISC1 simulation 1.3 ****\n");
         if (DEBUG) {
             System.err.print("args ");
             for (String arg : args) {

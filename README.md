@@ -115,26 +115,47 @@ The first column is the “assembly code”, 2nd is the memory layout of the ins
 - aa stands for an memory address, usually in hexadecimal
 - yes, rd, rt, & rs can be all the same register (or not)
 
-- ADD rd, rs, rt | 1dst | rd <- rs + rt
-- MOV rd, rs, x0 | 1ds0 | rd <- rs
-- SUB rd, rs, rt | 2dst | rd <- rs - rt
-- SUBI rd, rs, k | 3dsk | rd ← rs - k
-- LSH rd, rs, k | 4dsk | rd <- rs / k ??
-- RSH rd, rs, k | 5dsk | rd <- rs * k ??
-- BRZ rd, aa | 6daa | branch to aa on rd == 0
-- BGT rd, aa | 7daa | branch to aa on rd > 0
-- LD rd, aa | 8daa | load rd with value of memory loc aa
-- ST rs, aa | 9saa | store rd value to memory loc aa
-- HLT | 0000 | halt.
-- HCF | 0FFF | halt and catch fire.
-- IN rd | Ad00 | read in a number to rd
-- OUT rd | Bd00 | output a number from rd
-- ADDI rd rs k | Cdsk | rd <- rs + k  /*yes, added after first design */
-- DUMP | F000 | print out registers, machine state and memory
+    // opcodes - Instruction Set
+    // HLT | 0000 | halt cpu
+
+    // ADD rd, rs, rt | rd <- rs + rt
+    // ADDI rd, rs, k | rd ← rs + k
+    // SUB rd, rs, rt | rd <- rs - rt
+    // SUBI rd, rs, k | rd ← rs - k
+
+    // BRZ rd, aa | branch to aa on rd == 0
+    // BGT rd, aa | branch to aa on rd > 0
+
+    // logical operators
+    // LSH rd, rs, k | rd <- rs << k 
+    // RSH rd, rs, k | rd <- rs >> k 
+    // AND rd, rs, rt | rd <- rs & rt
+    // OR rd, rs, rt | rd <- rs | rt
+    // XOR rd, rs, rt | rd <- rs ^ rt
+
+    // LD rd, aa | load rd with value of memory loc aa
+    // LDI rd, aa | load rd with address value aa
+    // ST rs, aa | store rd value to memory loc aa
+    // LDR rd, rs | load rd with contents of memory(rs)
+    // STR rd, rs | store rd with contents of memory(rs)
+
+    // IN rd | read in a integer to rd
+    // OUT rd | output a integer from rd
+    // INB rd | read a byte from stdin
+    // OUTB rd | write a byte to stdout
+
+    // more branches for completeness
+    // BLT  rd, aa | branch to aa if rd less than 0
+    // BRNZ rd, aa | branch to aa if rd NOT equal to zero
+    // BLE rd, aa | branch to aa if rd less than or equal to zero
+    // DUMP | print out registers, machine state and memory
+    // HCF | halt and catch fire.
 
 ### Pseudo Instructions
 
 These are just handy, the text in the first column gets translated to the instruction in the second column.
+While they are not actual cpu instructions, the assembler can take the pseudo-instruction and transform it into a "real" cpu instruction(s).
+Some programmers will benefit from having these pseudo-instructions because they make the assembly code more readable.
 
 - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
 - CLR rd │ ADD rd, x0, x0 │ rd ← 0 + 0
@@ -251,6 +272,7 @@ start:
     DUMP
     HLT
 ```
+
 The output from zas of this file would be a UTF-8 file of hex numbers.
 
 ```
@@ -327,9 +349,10 @@ Build me a Guess the Number program?
 
 A ZAS assembler file is a text file which contain the lines of a program which runs on the ZipRISC1.
 
-File format is simple: a line is either empty, a directive, label, or an instruction
+File format is simple: a line is either empty, a directive, a label, or an instruction
 
-On any line, anything after a `//` is a comment. For readability, directives and labels should start at `^` and Instruction lines should start with `^\t`
+On any line, anything after a `//` is a comment. 
+For readability, directives and labels should start at `^` (beginning of line) and Instruction lines should start with `^\t` (leading tab).
 
 ```
 start:
@@ -338,7 +361,7 @@ start:
 
 ### Loader/Evaluator
 
-The a microcode evaluator has several parts: 
+The a microcode evaluator has several parts:
 
 - CPU class - a very simple POJO that handles memory and registers and cpu status.
 - Engine class - where all the processor implementation code goes
@@ -349,21 +372,22 @@ The a microcode evaluator has several parts:
 load a .zas file into memory and start execution at 0x0000.
 A common thing to do is to load 0x0000 with a `BRA aa` which allows for data to be loaded into low memory locations. `aa` would be a label like "start" or "main" where the actual code is.
 
-The Simulator then essentially does this: (remember, PS is the Program Counter, the IR is the instruction register)
+The Simulator then essentially does this: (remember, PC is the Program Counter, the IR is the instruction register)
 
 ```
 cpuRunning = true
-PC = 0
-while (cpuRunning == true)
-    load IR with contents of Memory[PC]
+PC = 0 // 0x0000
+while (cpuRunning == true) {
+    IR = memory[PC] //load IR with contents of Memory[PC]
     PC += 1
-    Decode and Execute instruction in IR
+    decodeAndExecute(IR) //Decode and Execute instruction in IR
     // the HLT instruction sets cpuRunning = false
-
+}
 // dump the cpu and memory final state
 ```
 
-So, finish up all the instructions, and write some tests to test your instructions.
+So, finish up all the instructions in the Engine class, and write some tests to test your instructions.
+You'll need to learn the assembly language format and what the instructions are supposed to do.
 
 Then, think about these ideas...
 
@@ -382,7 +406,7 @@ Then, think about these ideas...
 - What needs to change for string I/O?
 - Should the I/O pattern be changed to ONLY UTF-8 in an out?
 - How would you parse an integer from a string of bytes in zas?
-
+- How could you implement memory-mapped IO in the engine?
 
 ### Stuff in side of CPU
 
@@ -393,14 +417,18 @@ Main Processor Data Structures
 - memory (16384 words)
 - input word
 - output word
+- integer stack for arithmetic stuff (8 words)
 
 You get to graduate from ZipCode early if you write a C compiler for this processor.
 Several corporate partners may actually compete to hire you for bigger than normal money if you manage that.
 
+### Not Quite Implemented
+
+There is an integer stack (8 words) inside the cpu.
+It could be used to simplify math within registers.
+
 ### Futures to be Added
 
-- add AND, OR, and XOR instructions
-- add PUSH and POP? to the stack at SP
 - (maybe even PUSHI and POPI? immediate versions of Push/Pop
 - strings - handle unicode arrays in memory
 

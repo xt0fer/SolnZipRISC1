@@ -123,6 +123,17 @@ public class Engine {
             case RSH:
                 rightShift(arg1, arg2, arg3);
                 break;
+            
+            case AND:
+                bitwiseAnd(arg1, arg2, arg3);
+                break;
+            case OR:
+                bitwiseOr(arg1, arg2, arg3);
+                break;
+            case XOR:
+                bitwiseXor(arg1, arg2, arg3);
+                break;
+                
             default:
                 // perform a NOP
                 System.err.println("...dumping cpu state due to Panic...");
@@ -133,6 +144,18 @@ public class Engine {
     }
     
     // Instruction Implementations.
+
+    private void bitwiseXor(int arg1, int arg2, int arg3) {
+        cpu.set(arg1, cpu.get(arg2) ^ cpu.get(arg3));
+    }
+
+    private void bitwiseOr(int arg1, int arg2, int arg3) {
+        cpu.set(arg1, cpu.get(arg2) | cpu.get(arg3));
+    }
+
+    private void bitwiseAnd(int arg1, int arg2, int arg3) {
+        cpu.set(arg1, cpu.get(arg2) & cpu.get(arg3));
+    }
 
     private void storeRegFromReg(int arg1, int arg2, int arg3) {
         int address = cpu.get(arg2);

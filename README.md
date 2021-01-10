@@ -110,41 +110,41 @@ The first column is the “assembly code”, 2nd is the memory layout of the ins
 - aa stands for an memory address, usually in hexadecimal
 - yes, rd, rt, & rs can be all the same register (or not)
 
-    // opcodes - Instruction Set
-    // HLT | 0000 | halt cpu
+#### opcodes - Instruction Set
+- HLT | 0000 | halt cpu
 
-    // ADD rd, rs, rt | rd <- rs + rt
-    // ADDI rd, rs, k | rd ← rs + k
-    // SUB rd, rs, rt | rd <- rs - rt
-    // SUBI rd, rs, k | rd ← rs - k
+- ADD rd, rs, rt | rd <- rs + rt
+- ADDI rd, rs, k | rd ← rs + k
+- SUB rd, rs, rt | rd <- rs - rt
+- SUBI rd, rs, k | rd ← rs - k
 
-    // BRZ rd, aa | branch to aa on rd == 0
-    // BGT rd, aa | branch to aa on rd > 0
+- BRZ rd, aa | branch to aa on rd == 0
+- BGT rd, aa | branch to aa on rd > 0
 
-    // logical operators
-    // LSH rd, rs, k | rd <- rs << k 
-    // RSH rd, rs, k | rd <- rs >> k 
-    // AND rd, rs, rt | rd <- rs & rt
-    // OR rd, rs, rt | rd <- rs | rt
-    // XOR rd, rs, rt | rd <- rs ^ rt
+- logical operators
+- LSH rd, rs, k | rd <- rs << k 
+- RSH rd, rs, k | rd <- rs >> k 
+- AND rd, rs, rt | rd <- rs & rt
+- OR rd, rs, rt | rd <- rs | rt
+- XOR rd, rs, rt | rd <- rs ^ rt
 
-    // LD rd, aa | load rd with value of memory loc aa
-    // LDI rd, aa | load rd with address value aa
-    // ST rs, aa | store rd value to memory loc aa
-    // LDR rd, rs | load rd with contents of memory(rs)
-    // STR rd, rs | store rd with contents of memory(rs)
+- LD rd, aa | load rd with value of memory loc aa
+- LDI rd, aa | load rd with address value aa
+- ST rs, aa | store rd value to memory loc aa
+- LDR rd, rs | load rd with contents of memory(rs)
+- STR rd, rs | store rd with contents of memory(rs)
 
-    // IN rd | read in a integer to rd
-    // OUT rd | output a integer from rd
-    // INB rd | read a byte from stdin
-    // OUTB rd | write a byte to stdout
+- IN rd | read in a integer to rd
+- OUT rd | output a integer from rd
+- INB rd | read a byte from stdin
+- OUTB rd | write a byte to stdout
 
-    // more branches for completeness
-    // BLT  rd, aa | branch to aa if rd less than 0
-    // BRNZ rd, aa | branch to aa if rd NOT equal to zero
-    // BLE rd, aa | branch to aa if rd less than or equal to zero
-    // DUMP | print out registers, machine state and memory
-    // HCF | halt and catch fire.
+- more branches for completeness
+- BLT  rd, aa | branch to aa if rd less than 0
+- BRNZ rd, aa | branch to aa if rd NOT equal to zero
+- BLE rd, aa | branch to aa if rd less than or equal to zero
+- DUMP | print out registers, machine state and memory
+- HCF | halt and catch fire.
 
 ### Pseudo Instructions
 
@@ -274,13 +274,13 @@ start:
 The output from zas of this file would be a UTF-8 file of hex numbers.
 
 ```
-0x0000 06 00 00 02 // BRA start
-0x0001 00 00 00 02 // two = 2 (two is 0x0001)
-0x0002 08 01 00 02 // LD x1, two
-0x0003 08 02 00 02 // LD x2, two
-0x0004 01 01 01 02 // ADD
-0x0005 0C 00 00 00 // dump
-0x0006 00 00 00 00 // HLT
+0x0000 05 00 00 02 // BRA start
+0x0001 00 00 00 02 // two = 2 store a constant (two is 0x0001)
+0x0002 0C 01 00 01 // LD x1, two
+0x0003 0C 02 00 01 // LD x2, two
+0x0004 01 01 01 02 // ADD x1 x1 x2
+0x0005 0F 00 00 00 // DUMP
+0x0006 00 00 00 00 // HALT
 ```
 
 

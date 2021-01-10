@@ -63,6 +63,7 @@ public class Engine {
     private void decodeAndExecute(ISA opcode, int arg1, int arg2, int arg3) {
         switch (opcode) {
             case HLT:
+                System.err.printf("...halting at address: 0x%04X\n", cpu.get(CPU.PC)-1);
                 cpu.haltCPU();
                 break;
             // case HCF:
@@ -135,7 +136,7 @@ public class Engine {
                 break;
                 
             default:
-                // perform a NOP
+                // 
                 System.err.println("...dumping cpu state due to Panic...");
                 cpu.dumpState();
                 String irname = String.format("0x%2X", CPU.IR);

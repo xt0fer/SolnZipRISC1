@@ -22,6 +22,10 @@ public class CPU implements RISC1Core {
     private Word[] memory = new Word[MEMORY_SIZE];
     private Word instruction = new Word(0);
 
+    public static final int STACK_LIMIT = 8;
+    private Integer[] opstack = new Integer[STACK_LIMIT];
+    private Integer tos = -1; 
+
     private Scanner stdin;
     private int inputWord = 0;
     private int outputWord = 0;
@@ -64,6 +68,7 @@ public class CPU implements RISC1Core {
         return true;
     }
 
+    // Throws a Panic if register is out of range.
     private void checkRegister(int register) {
         if (register < 0 || register >= MAXREGS) {
             System.err.printf("bogus register %02X %d\n", register, register);
@@ -72,6 +77,7 @@ public class CPU implements RISC1Core {
         }
     }
 
+    // Throws a Panic if address is out of range.
     private void checkAddress(int address)  {
         if (address < 0 || address > MEMORY_SIZE) {
             System.err.printf("wrong address %04X %d\n", address, address);
@@ -204,4 +210,39 @@ public class CPU implements RISC1Core {
         }
         System.err.println("==== ");
     }
+
+    private int ppop() {
+        try {
+            tos -= 1;
+            return opstack[tos+1];    
+        } catch(ArrayIndexOutOfBoundsException e) {
+            throw new Panic("internal cpu stack underflow "+tos);
+        }
+    }
+    private void ppush(int i) {
+        try {
+            tos += 1;
+            opstack[tos] = i;    
+        } catch(ArrayIndexOutOfBoundsException e) {
+            throw new Panic("internal cpu stack overflow "+tos);
+        }
+    }
+
+    @Override
+    public void popi(int register) {
+        checkRegister(register);
+        this.set(register, ppop());
+    }
+
+    @Override
+    public void pushi(int register) {
+        checkRegister(register);
+        ppush(this.get(register));
+    }
+
+    @Override
+    public void op(ISA op) {
+        throw new Panic("internal cpu stack OPS not yet implemented");
+    }
+
 }

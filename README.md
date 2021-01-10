@@ -1,44 +1,26 @@
 # ZipRISC1
 
-## Changes Immediate
+A Java-based CPU simulation of a RISC processor.
 
+## v1.3
 
-- pseudos
-- CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
-- RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
-- pseudo PUSH rd | DECR SP; STR rd SP | sp <- sp - 1, store rd to contents of SP
-- pseudo POP rd | LDR rd, SP; INCR SP | load rd with contents SP, sp <- sp + 1
+The ZipCode RISC-1 (a 32-bit) microprocessor needs a simulator to prove to the potential investors that this is a world-beating design that Intel, AMD and Apple will all give up building cpu hardware when they see how fast and clean and _cool_ this processor is.
 
-#### done
+A CPU (central processing unit) has what's called an Instruction Set Architecture (ISA). 
+There are many copyrighted/proprietary ones, like ARM(Apple, RaspberryPi/Broadcom) and x86_64(Intel/AMD). 
+There are several "open source" ones as well like RISC-V. 
+There are also many, many "demonstration" or "made up" ones. This is one of those.
 
-- set MAXREGS to 32(?)
-- re-arrange the register assignments??
-- make one source of truth for instructions (json??) (ISA enum)
-- re-arrange instructions to re-order opcode(labels & hexs)
-- native ADDI re-order
-- add STR, LDR (or Load Indirect and Store Indirect?) (push & pop)
-- LDR rd, rs | 11dr0 | load rd with contents of address held by rs
-- STR rd, rs | 12dr0 | store rd into the address held by rs
+An ISA is a set of crafted "instructions" which are matched to a CPU design. 
+A common design is a RISC (reduced instruction set computer) where the number of instructions is relatively low number, like say 20, which are all pretty 'regular' or uniform (4 bytes, 32bits) in size. 
+A CISC (complex instruction set computer), on the other hand, has two major aspects that RISC does not. 
+CISC cpus often have hundreds of instructions (x86_64 has more than 1500) and the instructions sizes vary (from 16-bit (2 bytes) to larger (up to 15 bytes)).
 
-## Register Usage for v1.3
-
-- x2, x3, x4 - function call arguments
-- x2 - function return value
-- x7, x8, x9, xA - temp regs (used inside of functions)
-- rd, rs, rt, ru - temp regs alt names 
-
-## v1.2
-
-This lab/project can be done in either Java, Javascript, Python or any other language you manage.
-Just ask permission if you want to do it in something other than Java or Python.
-
-The ZipCode RISC-1 (a 32-bit) microprocessor needs a simulator to prove to the investors that this is a world-beating design that Intel, AMD and Apple will all shake in their shoes when they see how fast and clean and cool this processor is.
-
-A CPU has what's called an Instruction Set Architecture (ISA). There are many copyrighted/proprietary ones, like ARM(Apple, Raspberry Pi/Broadcom) and x86_64(Intel/AMD). There are several "open source" ones as well like RISC-V. There are also many, many "demonstration" or "made up" ones. This is one of those.
-
-An ISA is a set of crafted "instructions" which are matched to a CPU design. A common design is a RISC (reduced instruction set computer) where the number of instructions is relatively low number, like say 20, which are all pretty 'regular' or uniform (4 bytes, 32bits) in size. A CISC (complex instruction set computer), on the other hand, has two major aspects that RISC does not. CISC cpus often have hundreds of instructions (x86_64 has more than 1500) and the instructions sizes vary (from 16-bit (2 bytes) to larger (up to 15 bytes)).
-
-Now, why look at ZipRISC? Especially if it's a virtual processor? Well, ZipRISC1 is a pretty simple microprocessor. It also has a simple set of instructions. And while only having a few instructions, it can do anything a CISC cpu can do (theoretically). And because it looks like RISC is winning the long war against CISC.
+Now, why look at ZipRISC? Especially if it's a virtual processor? 
+Well, ZipRISC1 is a pretty simple microprocessor. 
+It also has a simple set of instructions. 
+And while only having a few instructions, it can do anything a CISC cpu can do (theoretically). 
+And because it looks like RISC is winning the long war against CISC.
 
 It has a simple internal core architecture, and a simple set of instructions. 
 It is "turing-complete".
@@ -60,11 +42,15 @@ Historically, the lowest level was a "symbolic assembler", which assembled "asse
 
 You write programs in assembly language (The ZAS language), specifically for the ZipRISC1, and turn it into machine code, which you then simulate on your simulator. 
 
-You need to write a processor simulator. It reads in a file of ZipRISC1 machine code (.zex file), loads it into memory and starts execution. 
+You need to write a processor simulator which runs code and acts like the internals of a model processor.
+It reads in a file of ZipRISC1 machine code (.zex file), loads it into memory and starts execution.
 The simulation continues until either a 'Panic' (crash) or a completion of the program.
 When you start the program, you execute the instruction found at memory location 0x0000.
 
-Each memory location is a 32-bit "word" made up of 4 "bytes". Each byte can only contain numbers from 0-255. Memory sizes can be modified as needed. Let's start with 64K words (or 256K bytes).
+Each memory location is a 32-bit "word" made up of 4 "bytes". 
+Each byte can only contain numbers from 0-255. 
+Memory sizes can be modified as needed. 
+Let's start with 64K words (or 256K bytes).
 
 ### ZipRISC1-32/32(64K)
 
@@ -75,28 +61,37 @@ There are 16 registers, numbered 0 to 31 (or x0 to x1F). Registers are super-fas
 - perform simple input and output from/to a register
 - move a word in memory to/from a register
 
-Register xPC is used as the Program Counter (PC). It contains the address of the next instruction to be executed. Register xIR is the Instruction Register. It is the place where the current instruction is placed just before it is executed. Register 0 (x0 or zero) is 'hardwired' to zero (which proves to be surprisingly handy). There are also registers assigned to the stack pointer, the frame pointer, the return address, and to the parameters of a function.
+Register xPC is used as the Program Counter (PC).
+It contains the address of the next instruction to be executed.
+Register xIR is the Instruction Register.
+It is the place where the current instruction is placed just before it is executed.
+Register 0 (x0 or zero) is 'hardwired' to zero (which proves to be surprisingly handy).
+There are also registers assigned to the stack pointer, the frame pointer, the return address, and to the parameters of a function.
 
-The processor runs a program from 0x0000 until it told to halt (HLT). When it is told to HALT, and no errors have occurred, you can consider your program to have "run".
+The processor runs a program from 0x0000 until it told to halt (HLT). 
+When it is told to HALT, and no errors have occurred, you can consider your program to have "run".
 
-This processor version has 32 registers, it is still a 32-bit cpu, but has 4 megabytes of memory. 
+This processor version has 32 registers, it is still a 32-bit cpu.
 
-Neither cpu currently has the notion of "floating point"; that is left as an exercise for the student. 
+The cpu currently has NO notion of "floating point"; that is left as an exercise for the student.
 
-So this lab/project has you implementing code for our ZipRISC1 processor. We have provided a simple version of the main loop of the simulator which only implements HLT. You must implement the rest of the instructions.
+So this lab/project has you implementing code for our ZipRISC1 processor. 
+We have provided a simple version of the main loop of the simulator which only implements HLT and ADD. 
+You must implement the rest of the instructions.
 
-We have also provide a very stupid, simple "assembler" which can translate ZipRISC1 Assembly (.zas file) code file (UTF-8 text) (and human readable-ish) into the ZipRISC1 executable format (.zex) (which is a UTF-* text file the simulator's loader can load into the the processor's memory.)
+We have also provide a very stupid, simple "assembler" (zas) which can translate ZipRISC1 Assembly (.zas file) code file (UTF-8 text) (and human readable-ish) into the ZipRISC1 executable format (.zex) (which is a UTF-* text file the simulator's loader can load into the the processor's memory when starting up a simulation.)
 
 The assembly file is a program file which tries to do some kind of simple task.
-Each line is one of four possible layouts, and if you mess up the layout, well, you get a very simple error message. The assembler quits as soon as it finds an error, or runs until the input runs out, and then drops the output file.
+Each line is one of four possible layouts, and if you mess up the layout, well, you get a very simple error message. 
+The assembler quits as soon as it finds an error, or runs until the input runs out, and then drops the output file.
 You then start the simulator on the output of the assembler and see what happens.
 You may get some output, an error, or maybe even a Panic.
 Panics are bad.
-Panics mean something is very wrong with something you're trying to do.
+Panics mean something is very wrong with something you're trying to do in the assembly language code you're trying to run.
 
 ### To RECAP
 
-- 32 registers: 32-bits wide named x0 to x1F  (x0 is ALWAYS zero)
+- 32 registers: 32-bits wide named x0 to x1F  (the x0 register is ALWAYS zero)
 - memory: 0x0000 - 0xFFFF (16K words!! (or 64Kbytes))
 - I/O: input/output (special registers)
 - instruction: 4 bytes, numbered 0, 1, 2, 3
@@ -191,9 +186,12 @@ Directives included help layout code in the memory. They are kind of like macros
 .EQ Zero 0
 .EQ OneHundred 100
 ```
-(but I am not sure we need this quite yet. nor whether the assembler will resolve the symbol correctly)
 
-### not yet implemented 
+(but I am not sure we need this yet. nor whether the assembler will resolve the symbol correctly. needs to be debugged.)
+
+### not yet implemented
+
+These are left as an exercise.
 
 .HS hex string of bytes
 

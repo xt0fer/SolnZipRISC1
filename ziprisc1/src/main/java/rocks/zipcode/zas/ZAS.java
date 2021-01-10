@@ -55,8 +55,8 @@ public class ZAS {
         java.lang.System.exit(0);
     }
 
-    String directiveLine = "^\\.([A-Z][A-Z])"; // dot, TWO UPPERCASE chars, space, and rest
-    String labelLine = "^([a-z0-9]+):"; // start of line, all lowercase alpha, colon.
+    String directiveLine = "^\\.([A-Z][A-Z])"; // dot, TWO UPPERCASE chars, space, and the rest
+    String labelLine = "^([a-z0-9]+):"; // start of line, all lowercase alphanum, colon.
     String codeLine = "[\\s+]([A-Z]+)[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)[,]*[\\s]*(\\-?[\\w]*)";
     Pattern directive_pattern;
     Pattern label_pattern;
@@ -165,6 +165,8 @@ public class ZAS {
         * the calling convention for subroutines/functions.
         - CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
         - RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
+        - POP rd | LDR rd, SP; INCR SP | load rd with contents SP, sp <- sp + 1
+        - PUSH rd | DECR SP; STR rd SP | sp <- sp - 1, store rd to contents of SP
         */
 
     private void tokensCheck(int needs, String[] tokens) {
@@ -201,12 +203,12 @@ public class ZAS {
             tokensCheck(3, tokens);
             return new3argWord("ADD", tokens[1], tokens[2], "x0");
         }
-        // CLR rd │ ADD rd, x0, x0 │ rd ← 0
+        // pseudo CLR rd │ ADD rd, x0, x0 │ rd ← 0
         if (opcode.equals("CLR")) {
             tokensCheck(2, tokens);
             return new3argWord("ADD", tokens[1], "x0", "x0");
         }
-        // INCR rd |ADD rd, rd, 1  | rd <- rd + 1
+        // pseudo INCR rd |ADD rd, rd, 1  | rd <- rd + 1
         if (opcode.equals("INCR")) {
             tokensCheck(2, tokens);
             return newShiftWord(opcode, tokens[1], tokens[1], "1");
@@ -237,6 +239,7 @@ public class ZAS {
             tokensCheck(3, tokens);
             return newMemoryWord(opcode, tokens[1], tokens[2]);
         }
+        // pseudo BRA  
         if (opcode.equals("BRA")) {
             tokensCheck(2, tokens);
             return newBRZWord("BRZ", "x0", tokens[1]);
@@ -281,12 +284,12 @@ public class ZAS {
             tokensCheck(2, tokens);
             return newIOWord(opcode, tokens[1]);
         }
-        // RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
+        // pseudo RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
         if (opcode.equals("RET")) {
             tokensCheck(1, tokens);
             return new3argWord("ADD", "xPC", "x1", "x0");
         }
-        // CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
+        // pseudo CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
         if (opcode.equals("CALL")) {
             tokensCheck(2, tokens);
             this.appendWord(newShiftWord("ADDI", "x1", "xPC", "1"));

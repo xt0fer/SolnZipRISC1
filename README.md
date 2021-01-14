@@ -2,6 +2,11 @@
 
 A Java-based CPU simulation of a RISC processor.
 
+#### see thru-out for v1.4 notes
+
+- comparators
+- removal of superfluous branches
+
 ## v1.3
 
 The ZipCode RISC-1 (a 32-bit) microprocessor needs a simulator to prove to the potential investors that this is a world-beating design that Intel, AMD and Apple will all give up building cpu hardware when they see how fast and clean and _cool_ this processor is.
@@ -92,7 +97,8 @@ Panics mean something is very wrong with something you're trying to do in the as
 ### To RECAP
 
 - 32 registers: 32-bits wide named x0 to x1F  (the x0 register is ALWAYS zero)
-- memory: 0x0000 - 0xFFFF (16K words!! (or 64Kbytes))
+- memory: 0x0000 - 0xFFFF (64K 32-bit words!! (or 256Kbytes))
+- memory is NOT dyte-addressable
 - I/O: input/output (special registers)
 - instruction: 4 bytes, numbered 0, 1, 2, 3
   - opcode, operand1, operand2, operand3
@@ -113,36 +119,50 @@ The first column is the “assembly code”, 2nd is the memory layout of the ins
 #### opcodes - Instruction Set
 - HLT | 0000 | halt cpu
 
+- **Math**
 - ADD rd, rs, rt | rd <- rs + rt
 - ADDI rd, rs, k | rd ← rs + k
 - SUB rd, rs, rt | rd <- rs - rt
 - SUBI rd, rs, k | rd ← rs - k
 
+- **Branches**
 - BRZ rd, aa | branch to aa on rd == 0
 - BGT rd, aa | branch to aa on rd > 0
 
-- logical operators
+- **Logical operators**
 - LSH rd, rs, k | rd <- rs << k 
 - RSH rd, rs, k | rd <- rs >> k 
 - AND rd, rs, rt | rd <- rs & rt
 - OR rd, rs, rt | rd <- rs | rt
 - XOR rd, rs, rt | rd <- rs ^ rt
 
+- **Load/Store memory**
 - LD rd, aa | load rd with value of memory loc aa
 - LDI rd, aa | load rd with address value aa
 - ST rs, aa | store rd value to memory loc aa
 - LDR rd, rs | load rd with contents of memory(rs)
 - STR rd, rs | store rd with contents of memory(rs)
 
+- *I/O*
 - IN rd | read in a integer to rd
 - OUT rd | output a integer from rd
 - INB rd | read a byte from stdin
 - OUTB rd | write a byte to stdout
 
-- more branches for completeness
+- more branches for completeness (v1.4, not sure we need these)
 - BLT  rd, aa | branch to aa if rd less than 0
 - BRNZ rd, aa | branch to aa if rd NOT equal to zero
 - BLE rd, aa | branch to aa if rd less than or equal to zero
+
+#### Need to Implement these Comparators! (v1.4)
+
+- **Comparators**
+- CMEQ rd, rs, rt | rd <- 1 if rs == rt, 0 otherwise
+- CMNE rd, rs, rt | rd <- 1 if rs != rt, 0 otherwise
+- CMLT rd, rs, rt | rd <- 1 if rs < rt, 0 otherwise
+- CMGE rd, rs, rt | rd <- 1 if rs >= rt, 0 otherwise
+
+- **Misc**
 - DUMP | print out registers, machine state and memory
 - HCF | halt and catch fire.
 
@@ -155,9 +175,12 @@ Some programmers will benefit from having these pseudo-instructions because they
 - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
 - CLR rd │ ADD rd, x0, x0 │ rd ← 0 + 0
 - DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
-- INCR rd |ADDI rd, rd, 1  | rd <- rd + 1
+- INCR rd | ADDI rd, rd, 1  | rd <- rd + 1
 - BRA aa │ BRZ x0, aa │ branch to aa, when register zero equals 0
   - (yes x0 is ALWAYS 0) (so think GOTO aa)
+- CMLE rd, rs, rt | CMGE rd, rt, rs (note: rt & rs swapped)
+- CMGR rd, rs, rt | CMLT rd, rt, rs (note: rt & rs swapped)
+
 
 #### the calling convention for subroutines/functions.
 

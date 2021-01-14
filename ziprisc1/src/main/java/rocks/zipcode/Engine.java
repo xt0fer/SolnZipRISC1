@@ -134,7 +134,9 @@ public class Engine {
             case XOR:
                 bitwiseXor(arg1, arg2, arg3);
                 break;
-                
+            
+            // TODO - implement Compare opcodes
+            
             default:
                 // 
                 System.err.println("...dumping cpu state due to Panic...");

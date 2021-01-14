@@ -67,12 +67,23 @@ public enum ISA {
     // BLE rd, aa | 0x19daa | branch to aa if rd less than or equal to zero
     BLE(0x19),
 
-
     // - DUMP | F000 | print out registers, machine state and memory
     DUMP(0x1F), // 31
 
     // - HCF | 0x20FFF | halt and catch fire.
     HCF(0x20), // Halt and Catch Fire (unimplemented instruction)
+    // - Comparators
+    // - CMEQ rd, rs, rt | rd <- 1 if rs == rt, 0 otherwise
+    CMEQ(0x21),
+    // - CMNE rd, rs, rt | rd <- 1 if rs != rt, 0 otherwise
+    CMNE(0x22),
+    // - CMLT rd, rs, rt | rd <- 1 if rs < rt, 0 otherwise
+    CMLT(0x23),
+    // - CMGE rd, rs, rt | rd <- 1 if rs >= rt, 0 otherwise
+    CMGE(0x24),
+    // zas will also emit CMGR and CMLE by swapping the source regs.
+    // because: x > y is also y <= x (right?)
+    // because: x <= y is also y > x (right?)
     ;
 
 

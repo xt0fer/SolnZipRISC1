@@ -4,8 +4,14 @@ A Java-based CPU simulation of a RISC processor.
 
 #### see thru-out for v1.4 notes
 
-- comparators
+many of these things are coming from cminus
+which maybe needs to be weakjava (.wj)
+
+- comparator instructions
 - removal of superfluous branches
+- add $literal for decimal numbers on instructions
+- add MOVI pseudo
+
 
 ## v1.3
 
@@ -112,8 +118,8 @@ The first column is the “assembly code”, 2nd is the memory layout of the ins
 
 - rd is the destination register
 - rs, rt are "argument" registers
-- k stands for an integer constant
-- aa stands for an memory address, usually in hexadecimal
+- k stands for an integer constant (prepend a $) $1 $42 etc...
+- aa stands for an memory address, usually in hexadecimal 0x0002
 - yes, rd, rt, & rs can be all the same register (or not)
 
 #### opcodes - Instruction Set
@@ -173,6 +179,7 @@ While they are not actual cpu instructions, the assembler can take the pseudo-in
 Some programmers will benefit from having these pseudo-instructions because they make the assembly code more readable.
 
 - MOV rd, rs │ ADD rd, rs, x0 │ rd ← rs
+- MOVI rd, k | ADDI rd, rd, k | rd <- k
 - CLR rd │ ADD rd, x0, x0 │ rd ← 0 + 0
 - DEC rd │ SUBI rd, rd, 1 │ rd ← rd - 1
 - INCR rd | ADDI rd, rd, 1  | rd <- rd + 1
@@ -186,6 +193,8 @@ Some programmers will benefit from having these pseudo-instructions because they
 
 - CALL aa | ADDI x1 xPC 1; BRA aa | ra <- PC + 1, jump to aa
 - RET | ADD xPC x1 x0 | pc <- ra (ra is "return address")
+- PUSH rd
+- POP rd
 
 ### Assembler Directives
 

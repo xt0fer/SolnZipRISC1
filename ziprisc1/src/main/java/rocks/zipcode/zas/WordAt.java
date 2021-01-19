@@ -32,7 +32,7 @@ public class WordAt extends Word {
         this.setForwardref(null);
         int taddr = Integer.decode(address);
         this.b[3] = (taddr & 0xFF);
-        this.b[2] = (taddr & 0xFF00) >> 16;
+        this.b[2] = (taddr & 0xFF00) >> 8;
     }
     public boolean isForwardReference() {
         return this.forwardref != null;

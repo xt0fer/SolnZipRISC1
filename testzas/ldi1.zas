@@ -1,0 +1,11 @@
+.OR	0x0000 
+	BRA _sbase 
+_main:
+    BRA _main
+.OR 0x0100
+seven:
+    LDI x6 seven
+.OR 0x7777
+_sbase:
+    LDI x7 _sbase
+    FOO

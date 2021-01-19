@@ -43,7 +43,7 @@ public class ZAS {
     }
 
     String directiveLine = "^\\.([A-Z][A-Z])"; // dot, TWO UPPERCASE chars, space, and the rest
-    String labelLine = "^([a-z0-9]+):"; // start of line, all lowercase alphanum, colon.
+    String labelLine = "^([a-z0-9_]+):"; // start of line, all lowercase alphanum, colon.
     String codeLine = "[\\s+]([A-Z]+)[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)";
     Pattern directive_pattern;
     Pattern label_pattern;
@@ -79,13 +79,13 @@ public class ZAS {
 
     private void parseLine(String line) {
 
-        if (DEBUG) System.err.print("//> ");
+        if (DEBUG) System.err.print("// ");
         String lineNoComments = line;
         int index = line.indexOf("//");
         if (index >= 0) {
             lineNoComments= line.substring(0, index);
         }
-        if (DEBUG) System.err.print(lineNoComments);
+        //if (DEBUG) System.err.print(lineNoComments);
 
         Matcher lMatch = label_pattern.matcher(lineNoComments);
         Matcher dMatch = directive_pattern.matcher(lineNoComments);
@@ -98,17 +98,18 @@ public class ZAS {
         } else if (lMatch.find()) {
             this.handleLabel(lineNoComments, lMatch.group(1));
         }
-        if (DEBUG) System.err.println();
+        //if (DEBUG) System.err.println();
     }
 
     private void handleDirective(String line, String dir) {
         String[] tokens = line.split("\\s");
         if (DEBUG) {
-            System.err.print(" /"+dir+"/ ");
-            System.err.print("["+line+"]");
+            //System.err.print("t");
+            //System.err.print("["+line+"]");
             for (String token : tokens) {
-                System.err.print(" >> "+token);
+                System.err.print(" <"+token+">");
             }
+            System.err.println();
         }
 
         if (dir.equals("WD")) {
@@ -130,7 +131,7 @@ public class ZAS {
     }
 
     private void handleLabel(String line, String label) {
-        if (DEBUG) System.err.print(" // "+label+" ");
+        if (DEBUG) System.err.println(" <"+label+"> ");
         symbols.put(label, currentAddressString());
     }
 
@@ -159,7 +160,7 @@ public class ZAS {
         }
         int t0 = 0;
         for (String t : tokens) {
-            System.out.print(t+",");
+            //System.out.print(t+",");
             if (t.equals("")) {
                 throw new Panic("\nexpected token at position "+Integer.toString(t0)+" is empty at line: "+atLine()+"\nline: "+this.currentLine);
             }
@@ -173,10 +174,8 @@ public class ZAS {
         String[] tokens = line.split("\\W");
 
         if (DEBUG) { 
-            System.err.print(" // "+opcode);
-            System.err.print("["+line+"]");
             for (String token : tokens) {
-                System.err.print(" "+token);
+                System.err.print(" <"+token+">");
             }
         }
         if (opcode.equals("ADD")) {
@@ -206,9 +205,11 @@ public class ZAS {
             return newShiftWord(opcode, tokens[1], tokens[2], "0");
         }
         if (opcode.equals("HLT")) {
+            tokensCheck(1, tokens);
             return newHaltWord();
         }
         if (opcode.equals("DUMP")) {
+            tokensCheck(1, tokens);
             return newDumpWord();
         }
         if (opcode.equals("LD")) {
@@ -373,11 +374,13 @@ public class ZAS {
 
     private int lowerHalf(int addr) {
         int i = (addr & 0xFF);
+        //System.err.printf("lh: %02X,", i);
         return i;
     }
 
     private int upperHalf(int addr) {
-        int i = (addr & 0xFF00) >> 16;
+        int i = (addr & 0xFF00) >> 8;
+        //System.err.printf("uh: %02X\n", i);
         return i;
     }
 
@@ -442,6 +445,7 @@ public class ZAS {
             if (w.isForwardReference()) {
                 if (symbols.containsKey(w.getForwardref())) {
                     String a = symbols.get(w.getForwardref());
+                    //System.err.println(w.toString()+" fw: "+a);
                     w.defineForwardReference(a);
                 } else {
                     throw new Panic("unable to resolve symbol "+w.getForwardref());

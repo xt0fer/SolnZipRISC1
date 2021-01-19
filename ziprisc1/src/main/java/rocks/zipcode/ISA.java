@@ -39,7 +39,7 @@ public enum ISA {
 
     // LD rd, aa | Cdaa | load rd with value of memory loc aa
     LD(0xC),
-    // LDI rd, aa | Ddaa | load rd with address value aa
+    // LDI rd, aa | Ddaa | load rd with address aa
     LDI(0xD),
     // - ST rs, aa | Esaa | store rd value to memory loc aa
     ST(0xE),

@@ -30,34 +30,21 @@ public class ZAS {
     public static void main(String[] args) {
         ZAS zas = new ZAS();
         System.err.println("//**** ZipRISC1 Assembler v1.3 ****");
-        if (DEBUG) {
-            System.err.print("// args ");
-            for (String arg : args) {
-                System.err.print(" ");
-                System.err.print(arg);
-            }
-            System.err.println();    
-        }
-        if (args.length == 1) {
-            try {
-                zas.initializeTables();
-                zas.parseFile(args[0]);
-                zas.dumpSymbols();
-                zas.outputResults();
-            } catch (Panic e) {
-                e.printStackTrace();
-                java.lang.System.exit(-1);
-            }    
-        } else {
-            System.err.println("no input file.");
+        try {
+            zas.initializeTables();
+            zas.parseStandardInput(); 
+            zas.dumpSymbols();
+            zas.outputResults();
+        } catch (Panic e) {
+            e.printStackTrace();
             java.lang.System.exit(-1);
-        }
+        }    
         java.lang.System.exit(0);
     }
 
     String directiveLine = "^\\.([A-Z][A-Z])"; // dot, TWO UPPERCASE chars, space, and the rest
     String labelLine = "^([a-z0-9]+):"; // start of line, all lowercase alphanum, colon.
-    String codeLine = "[\\s+]([A-Z]+)[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)[,]*[\\s]*(\\-?[\\w]*)";
+    String codeLine = "[\\s+]([A-Z]+)[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)";
     Pattern directive_pattern;
     Pattern label_pattern;
     Pattern code_pattern;
@@ -69,16 +56,12 @@ public class ZAS {
         this.code_pattern = Pattern.compile(codeLine, Pattern.CASE_INSENSITIVE);
     }
 
-    public void parseFile(String filename) {
-        java.io.File tempFile = new java.io.File(filename);
-        if (tempFile.exists() != true)
-            throw new Panic("Panic: input assembly file not found");
-        
+    public void parseStandardInput() {
         // open and load each line.
         java.io.BufferedReader reader;
 		try {
-			reader = new java.io.BufferedReader(new java.io.FileReader(
-                filename));
+            // reader = new java.io.BufferedReader(new java.io.FileReader(filename));
+            reader = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
             this.currentLine = reader.readLine();
             this.currentLineNum++;
 			while (this.currentLine != null) {
@@ -176,12 +159,13 @@ public class ZAS {
         }
         int t0 = 0;
         for (String t : tokens) {
-            // System.out.println(t);
+            System.out.print(t+",");
             if (t.equals("")) {
                 throw new Panic("\nexpected token at position "+Integer.toString(t0)+" is empty at line: "+atLine()+"\nline: "+this.currentLine);
             }
             t0++;
         }
+        System.out.println();
     }
     private WordAt handleCode(String line, String opcode) {
         // change to standard interface, and call create opcode
@@ -414,6 +398,11 @@ public class ZAS {
             int newAddress = decodeToInt(token);
             return newAddress;            
         }
+        if (token.startsWith("$")){
+            int newAddress = parseToInt(token.substring(1));
+            return newAddress;            
+        }
+
         // assume at this point the token is a forward symbol reference.
         return -1;
     }
@@ -422,7 +411,7 @@ public class ZAS {
         try {
             return Integer.decode(token);
         } catch (NumberFormatException e) {
-            throw new Panic("error in reading an integer: "+atLine()+" ["+token+"]"+"\nline: "+this.currentLine);
+            throw new Panic("error in decoding an integer: "+atLine()+" ["+token+"]"+"\nline: "+this.currentLine);
         }
     }
 

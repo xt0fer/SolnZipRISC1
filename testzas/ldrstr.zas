@@ -5,7 +5,7 @@ start:
     LDR x6 x5
     OUT x6
     OUT x6
-    ADDI x6 x6 $6
+    ADDI x6 x6 6
     STR x6 x5
 //    OUT x6
 exit:

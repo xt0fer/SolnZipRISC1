@@ -4,13 +4,14 @@ A Java-based CPU simulation of a RISC processor.
 
 #### see thru-out for v1.4 notes
 
-many of these things are coming from cminus
+many of these things are coming from WeakJava
 which maybe needs to be weakjava (.wj)
 
 - comparator instructions
 - removal of superfluous branches
-- add $literal for decimal numbers on instructions
+- NOPE add $literal for decimal numbers on instructions
 - add MOVI pseudo
+- DONE zas should just read standard in, not use a cmdline arg
 
 
 ## v1.3

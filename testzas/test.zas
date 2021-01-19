@@ -8,7 +8,7 @@ start:
     LD x2, two
     ADD x1, x1, x2
     SUB x4, x1, x1
-    SUBI x4, x4, $5
+    SUBI x4, x4, 5
     CLR x4
 halfway:
     ST x2, tmpi

@@ -376,7 +376,8 @@ Build me a Guess the Number program?
 
 ### ZAS Assembler
 
-`zas` translates .zas file to standard out (which you should put into a .zex file).
+`zas` translates a .zas file on standard input to standard out (which you should put into a .zex file).
+Debugging information gets dumped to standard error.
 
 A ZAS assembler file is a text file which contain the lines of a program which runs on the ZipRISC1.
 
@@ -417,6 +418,9 @@ while (cpuRunning == true) {
 // dump the cpu and memory final state
 ```
 
+```
+./zrisc < testzas/firstprogram.zex
+```
 You should be able to run the `firstprogram.zex` file with the simulator as input without making any changes.
 It only uses HALT, ADD (doing nothing) and BRA (unconditional branch or jump).
 Look at both `firstprogram.zas` for the assembly source code and `firstprogram.zex` (the machine code) to see what these files look like.
@@ -466,8 +470,11 @@ It could be used to simplify math within registers.
 - (maybe even PUSHI and POPI? immediate versions of Push/Pop
 - strings - handle unicode arrays in memory
 
+- implement a WeakJava compiler as example.
 - implement a femtoC compiler
 - implement a femtoLisp interpreter
 - implement a Forth
+
+(femto- here means very very small, probably useless, like WeakJava is)
 
 _Need a BUNCH of tests!_

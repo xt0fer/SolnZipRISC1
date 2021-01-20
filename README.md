@@ -478,3 +478,5 @@ It could be used to simplify math within registers.
 (femto- here means very very small, probably useless, like WeakJava is)
 
 _Need a BUNCH of tests!_
+
+the diagrams are sourced via http://shapesapp.com and are in the WeakJava repo.

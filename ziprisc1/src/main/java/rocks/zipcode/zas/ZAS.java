@@ -51,6 +51,7 @@ public class ZAS {
     Integer address = 0;
     
     public ZAS() {
+        // compile patterns used to match the lines of a zas file
         this.directive_pattern = Pattern.compile(directiveLine, Pattern.CASE_INSENSITIVE);
         this.label_pattern = Pattern.compile(labelLine, Pattern.CASE_INSENSITIVE);
         this.code_pattern = Pattern.compile(codeLine, Pattern.CASE_INSENSITIVE);

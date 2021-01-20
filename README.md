@@ -64,6 +64,8 @@ Each byte can only contain numbers from 0-255.
 Memory sizes can be modified as needed.
 Let's start with 64K words (or 256K bytes).
 
+![Zas & ZipRISC1](docs/ziprisc1arch.png)
+
 ### ZipRISC1-32/32(64K)
 
 There are 16 registers, numbered 0 to 31 (or x0 to x1F). Registers are super-fast places inside a cpu which are used to perform specific instructions. You can
@@ -373,6 +375,8 @@ first:
 Build me a Guess the Number program?
 
 ## Toolchain
+
+![Zas Toolchain](docs/ziprisc1flow.png)
 
 ### ZAS Assembler
 

@@ -44,7 +44,7 @@ public class ZAS {
 
     String directiveLine = "^\\.([A-Z][A-Z])"; // dot, TWO UPPERCASE chars, space, and the rest
     String labelLine = "^([a-z0-9_]+):"; // start of line, all lowercase alphanum, colon.
-    String codeLine = "[\\s+]([A-Z]+)[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)";
+    String codeLine = "[\\s+]([A-Z]+)[\\s]*([\\w]*)[,]*[\\s]*([\\w]*)[,]*[\\s]*(\\w]*)";
     Pattern directive_pattern;
     Pattern label_pattern;
     Pattern code_pattern;
@@ -172,7 +172,8 @@ public class ZAS {
     private WordAt handleCode(String line, String opcode) {
         // change to standard interface, and call create opcode
         line = line.trim().replace(",", "");
-        String[] tokens = line.split("\\W");
+        //String[] tokens = line.split("\\W");
+        String[] tokens = line.split("\\s");
 
         if (DEBUG) { 
             for (String token : tokens) {
@@ -319,7 +320,13 @@ public class ZAS {
         String a1,
         String a2,
         String a3) {
-        int immed = Integer.parseInt(a3);
+            /* immediate values need to be #1 -> 1, #12 -> 12, etc. */
+        int immed = -1;
+        if (a3.startsWith("#") == true) {
+            a3 = a3.substring(1);
+        }
+        immed = Integer.parseInt(a3);
+        //System.out.printf("imm: %d\n",immed);
         return new WordAt(currentAddressString(),
             resolve(opcode), resolve(a1), resolve(a2), immed);
     }

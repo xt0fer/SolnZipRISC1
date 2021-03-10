@@ -2,11 +2,14 @@
 
 A Java-based CPU simulation of a RISC processor.
 
-#### see thru-out for v1.4 notes
+### v1.4 notes
 
 many of these things are coming from WeakJava
 which maybe needs to be weakjava (.wj)
 
+- make it more ARM-like
+- reduce back to 16 regs
+- processor state reg??
 - comparator instructions
 - removal of superfluous branches
 - NOPE add $literal for decimal numbers on instructions
@@ -18,23 +21,23 @@ which maybe needs to be weakjava (.wj)
 
 The ZipCode RISC-1 (a 32-bit) microprocessor needs a simulator to prove to the potential investors that this is a world-beating design that Intel, AMD and Apple will all give up building cpu hardware when they see how fast and clean and _cool_ this processor is.
 
-A CPU (central processing unit) has what's called an Instruction Set Architecture (ISA). 
-There are many copyrighted/proprietary ones, like ARM(Apple, RaspberryPi/Broadcom) and x86_64(Intel/AMD). 
-There are several "open source" ones as well like RISC-V. 
+A CPU (central processing unit) has what's called an Instruction Set Architecture (ISA).
+There are many copyrighted/proprietary ones, like ARM(Apple, RaspberryPi/Broadcom) and x86_64(Intel/AMD).
+There are several "open source" ones as well like RISC-V.
 There are also many, many "demonstration" or "made up" ones. This is one of those.
 
 An ISA is a set of crafted "instructions" which are matched to a CPU design. 
-A common design is a RISC (reduced instruction set computer) where the number of instructions is relatively low number, like say 20, which are all pretty 'regular' or uniform (4 bytes, 32bits) in size. 
-A CISC (complex instruction set computer), on the other hand, has two major aspects that RISC does not. 
+A common design is a RISC (reduced instruction set computer) where the number of instructions is relatively low number, like say 20, which are all pretty 'regular' or uniform (4 bytes, 32bits) in size.
+A CISC (complex instruction set computer), on the other hand, has two major aspects that RISC does not.
 CISC cpus often have hundreds of instructions (x86_64 has more than 1500) and the instructions sizes vary (from 16-bit (2 bytes) to larger (up to 15 bytes)).
 
-Now, why look at ZipRISC? Especially if it's a virtual processor? 
-Well, ZipRISC1 is a pretty simple microprocessor. 
-It also has a simple set of instructions. 
-And while only having a few instructions, it can do anything a CISC cpu can do (theoretically). 
+Now, why look at ZipRISC? Especially if it's a virtual processor?
+Well, ZipRISC1 is a pretty simple microprocessor.
+It also has a simple set of instructions.
+And while only having a few instructions, it can do anything a CISC cpu can do (theoretically).
 And because it looks like RISC is winning the long war against CISC.
 
-It has a simple internal core architecture, and a simple set of instructions. 
+It has a simple internal core architecture, and a simple set of instructions.
 It is "turing-complete".
 This processor is a little (very little) like the new Apple Silicon M1s, in that it has memory side-by-each with the registers (as in the memory is inside of the CPU).
 Its memory is not a separate subsystem (like on an IBM PC architecture machine (which most PCs are)).
@@ -66,18 +69,19 @@ Let's start with 64K words (or 256K bytes).
 
 ![Zas & ZipRISC1](docs/ziprisc1arch.png)
 
-### ZipRISC1-32/32(64K)
+### ZipRISC1-32/16 (64K)
 
-There are 16 registers, numbered 0 to 31 (or x0 to x1F). Registers are super-fast places inside a cpu which are used to perform specific instructions. You can
+There are 16 registers, numbered 0 to 15 (or x0 to x1F). Registers are super-fast places inside a cpu which are used to perform specific instructions. You can
 
 - perform arithmetic on a register
 - move 32-bit words from one register to another
 - perform simple input and output from/to a register
 - move a word in memory to/from a register
+- jump to an address based on a compare between registers
 
-Register xPC is used as the Program Counter (PC).
+Register xPC (xF or r15) is used as the Program Counter (PC).
 It contains the address of the next instruction to be executed.
-Register xIR is the Instruction Register.
+Register xIR (xE of 14) is the Instruction Register.
 It is the place where the current instruction is placed just before it is executed.
 Register 0 (x0 or zero) is 'hardwired' to zero (which proves to be surprisingly handy).
 There are also registers assigned to the stack pointer, the frame pointer, the return address, and to the parameters of a function.
@@ -85,7 +89,7 @@ There are also registers assigned to the stack pointer, the frame pointer, the r
 The processor runs a program from 0x0000 until it told to halt (HLT).
 When it is told to HALT, and no errors have occurred, you can consider your program to have "run".
 
-This processor version has 32 registers, it is still a 32-bit cpu.
+This processor version has 16 registers, it is still a 32-bit cpu.
 
 The cpu currently has NO notion of "floating point"; that is left as an exercise for the student.
 
@@ -96,7 +100,7 @@ You must implement the rest of the instructions.
 We have also provide a very stupid, simple "assembler" (zas) which can translate ZipRISC1 Assembly (.zas file) code file (UTF-8 text) (and human readable-ish) into the ZipRISC1 executable format (.zex) (which is a UTF-* text file the simulator's loader can load into the the processor's memory when starting up a simulation.)
 
 The assembly file is a program file which tries to do some kind of simple task.
-Each line is one of four possible layouts, and if you mess up the layout, well, you get a very simple error message. 
+Each line is one of four possible layouts, and if you mess up the layout, well, you get a very simple error message.
 The assembler quits as soon as it finds an error, or runs until the input runs out, and then drops the output file.
 You then start the simulator on the output of the assembler and see what happens.
 You may get some output, an error, or maybe even a Panic.
@@ -105,11 +109,12 @@ Panics mean something is very wrong with something you're trying to do in the as
 
 ### To RECAP
 
-- 32 registers: 32-bits wide named x0 to x1F  (the x0 register is ALWAYS zero)
-- memory: 0x0000 - 0xFFFF (64K 32-bit words!! (or 256Kbytes))
-- memory is NOT dyte-addressable
+- 16 registers: 32-bits wide named x0 to xF  (the x0 register is ALWAYS zero)
+- memory: 0x0000 - 0xFFFF (64K 32-bit words!! (or 256Kbytes)) 
+  - (this can be trivially changed)
+- memory is NOT byte-addressable
 - I/O: input/output (special registers)
-- instruction: 4 bytes, numbered 0, 1, 2, 3
+- all instruction: 4 bytes, numbered 0, 1, 2, 3
   - opcode, operand1, operand2, operand3
 - some instruction take one or two operands, some take three.
 
@@ -121,7 +126,7 @@ The first column is the “assembly code”, 2nd is the memory layout of the ins
 
 - rd is the destination register
 - rs, rt are "argument" registers
-- k stands for an integer constant (prepend a $) $1 $42 etc...
+- k stands for an integer constant (prepend a #) #1 #42 in DECIMAL etc...
 - aa stands for an memory address, usually in hexadecimal 0x0002
 - yes, rd, rt, & rs can be all the same register (or not)
 

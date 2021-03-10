@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class CPU implements RISC1Core {
    //
     // convenience constants for some dedicated registers
-    public static final int MAXREGS = 32;
+    public static final int MAXREGS = 16;
     public static final int MEMORY_SIZE = 0x100;
 
     public static final int PC = MAXREGS-1; // Program Counter 1F
@@ -243,6 +243,18 @@ public class CPU implements RISC1Core {
     @Override
     public void op(ISA op) {
         throw new Panic("internal cpu stack OPS not yet implemented");
+    }
+
+    @Override
+    public byte inputByte() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void outputByte(byte i) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

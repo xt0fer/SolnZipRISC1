@@ -7,6 +7,6 @@ start:
     LD x2, two
     ADD x1, x1, x2
     LD x3, two
-    ADDI x3, x3, 2
+    ADDI x3, x3, #2
     DUMP
     HLT

@@ -11,13 +11,13 @@ public enum ISA {
     // ADDs
     // - ADD rd, rs, rt | 1dst | rd <- rs + rt
     ADD(1),
-    // - ADDI rd, rs, k | Cdsk | rd ← rs + k
+    // - ADDI rd, rs, k | Cdsk | rd ← rs + k ; k needs to be #k like #4 
     ADDI(2),
 
     // SUBs
     // - SUB rd, rs, rt | 2dst | rd <- rs - rt
     SUB(3),
-    // - SUBI rd, rs, k | 3dsk | rd ← rs - k
+    // - SUBI rd, rs, k | 3dsk | rd ← rs - k ; k needs to be #k like #4 
     SUBI(4),
 
     // - BRZ rd, aa | 6daa | branch to aa on rd == 0

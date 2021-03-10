@@ -21,6 +21,9 @@ public interface RISC1Core {
     int inputInt() ;
     void outputInt(int i);
 
+    byte inputByte() ;
+    void outputByte(byte i);
+
     // for cpu integer stack
     // popi - pops top of integer_stack to register
     void popi(int register);

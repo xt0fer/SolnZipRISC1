@@ -6,27 +6,27 @@ a:      // variable
 b:      // variable 
 .WD 0 
 _main:  // data section 
-        ADDI x8 x0 3 
+        ADDI x8 x0 #3 
         ST x8 a 
         LD x8 a 
-        ADDI x8 x0 1 
+        ADDI x8 x0 #1 
         ST x8 b 
         LD x5 b // IF  
-        ADDI x6 x0 4 
+        ADDI x6 x0 #4 
         CMEQ x4 x5 x6 
         BRZ x4 label_20 
-        ADDI x8 x0 2 
+        ADDI x8 x0 #2 
         ST x8 a 
 label_20:       // end if 
         LD x5 a // IF  
-        ADDI x6 x0 3 
+        ADDI x6 x0 #3 
         CMEQ x4 x5 x6 
         BRZ x4 label_32 
         LD x8 a 
-        ADDI x8 x0 1 
+        ADDI x8 x0 #1 
         ST x8 a 
         LD x8 b 
-        ADDI x8 x0 6 
+        ADDI x8 x0 #6 
         ST x8 b 
 label_32:       // end if 
         MOV xA a 

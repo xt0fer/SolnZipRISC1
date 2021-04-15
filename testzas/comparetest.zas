@@ -1,0 +1,19 @@
+.OR 0x0000
+start:
+    LD x5, tmpi
+    LD x6, tmpi
+    CMEQ x7, x5, x6
+    OUT x7
+    SUBI x5 x5 #1
+    CMEQ x7, x5, x6
+    OUT x7
+    CMNE x7, x5, x6
+    OUT x7
+    CMLT x7, x5, x6
+    OUT x7
+    CMGE x7, x5, x6
+    OUT x7
+exit:
+    HLT
+tmpi:
+.WD 5

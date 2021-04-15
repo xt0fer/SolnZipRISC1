@@ -67,7 +67,7 @@ public class Engine {
                 cpu.haltCPU();
                 break;
             // case HCF:
-            //     System.err.println("...halting and catch fire...");
+            //     System.err.println("...halt and catch fire...");
             //     cpu.haltCPU();
             //     System.err.println("...what's that smell?...");
             //     System.err.println("...oh damn...");
@@ -136,7 +136,19 @@ public class Engine {
                 break;
             
             // TODO - implement Compare opcodes
-            
+            case CMEQ:
+                compare(ISA.CMEQ, arg1, arg2, arg3);
+                break;
+            case CMNE:
+                compare(ISA.CMNE, arg1, arg2, arg3);
+                break;
+            case CMLT:
+                compare(ISA.CMLT, arg1, arg2, arg3);
+                break;
+            case CMGE:
+                compare(ISA.CMGE, arg1, arg2, arg3);
+                break;
+    
             default:
                 // 
                 System.err.println("...dumping cpu state due to Panic...");
@@ -147,6 +159,29 @@ public class Engine {
     }
     
     // Instruction Implementations.
+
+    private void compare(ISA opcode, int arg1, int arg2, int arg3) {
+        switch (opcode) {
+            case CMEQ:
+                // - CMEQ rd, rs, rt | rd <- 1 if rs == rt, 0 otherwise
+                cpu.set(arg1, (cpu.get(arg2) == cpu.get(arg3) ? 1 : 0));
+                break;
+            case CMNE:
+                // - CMNE rd, rs, rt | rd <- 1 if rs != rt, 0 otherwise
+                cpu.set(arg1, (cpu.get(arg2) != cpu.get(arg3) ? 1 : 0));
+                break;
+            case CMLT:
+                // - CMLT rd, rs, rt | rd <- 1 if rs < rt, 0 otherwise
+                cpu.set(arg1, (cpu.get(arg2) > cpu.get(arg3) ? 1 : 0));
+                break;
+            case CMGE:
+                // - CMGE rd, rs, rt | rd <- 1 if rs >= rt, 0 otherwise
+                cpu.set(arg1, (cpu.get(arg2) >= cpu.get(arg3) ? 1 : 0));
+                break;
+            default:
+        }
+
+    }
 
     private void bitwiseXor(int arg1, int arg2, int arg3) {
         cpu.set(arg1, cpu.get(arg2) ^ cpu.get(arg3));

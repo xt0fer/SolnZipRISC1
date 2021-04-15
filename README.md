@@ -14,7 +14,6 @@ which maybe needs to be weakjava (.wj)
 - removal of superfluous branches
 - NOPE add $literal for decimal numbers on instructions
 - add MOVI pseudo
-- DONE zas should just read standard in, not use a cmdline arg
 
 
 ## v1.3

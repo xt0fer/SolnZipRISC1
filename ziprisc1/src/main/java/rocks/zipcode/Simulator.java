@@ -58,10 +58,12 @@ public class Simulator {
 			String line = reader.readLine();
 			while (line != null) {
                 if (DEBUG) {
-                    System.err.println(line);
+                    System.err.printf("[%s] %d \n", line, line.length());
                 }
 
-                this.loadMemoryLocation(line);
+                if (line.length() != 0) {
+                    this.loadMemoryLocation(line);
+                }
 
                 // read next line
 				line = reader.readLine();

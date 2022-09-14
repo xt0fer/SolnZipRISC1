@@ -1,3 +1,4 @@
 #!/bin/bash
 # run the assembler (you prob want to capture stdout into a file...)
+# $1 should be a .zas file, stdout will be what needs to go into a .zex file
 java -Dfile.encoding=UTF-8 -cp ./ziprisc1/target/classes rocks.zipcode.zas.ZAS $1

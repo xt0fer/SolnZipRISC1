@@ -1,3 +1,4 @@
 #!/bin/bash
 # run the Simulator
+# $1 should be a .zex file
 java -Dfile.encoding=UTF-8 -cp ./ziprisc1/target/classes rocks.zipcode.Simulator $1

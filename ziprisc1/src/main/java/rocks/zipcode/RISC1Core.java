@@ -2,26 +2,35 @@ package rocks.zipcode;
 
 public interface RISC1Core {
 
+    // set/get a Word object from memory
     void store(int address, Word w) ;
     Word fetch(int address) ;
 
+    // set a register with the contents of a Word object
     void wset(int register, Word w) ;
 
     default Word wget() {
          return wget();
     }
 
+    // get a Word object from the contents of a register
     Word wget(int register) ;
 
+    // get/set value of a register
     int get(int register) ;
     void set(int register, int i) ;
 
+    // stops processor
     void halt();
 
+    // get input int from standard input
     int inputInt() ;
+    // output int to standard output
     void outputInt(int i);
 
+    // get a byte from standard input
     byte inputByte() ;
+    // put a byte to standard output
     void outputByte(byte i);
 
     // for cpu integer stack

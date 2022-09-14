@@ -5,7 +5,7 @@ package rocks.zipcode;
  * does all the actual work 
  * of the processor.
  * It implements all the BASE (or core) instructions,
- * using the "cpu" object provided
+ * using the "cpu" object provided/injected
  */
 
 public class Engine {
@@ -19,7 +19,7 @@ public class Engine {
     
     public void runAt(int initial_address)  {
         if (initial_address >= CPU.MEMORY_SIZE) {
-            throw new Panic("memory violation");
+            throw new Panic("memory out-of-bounds violation");
         }
         long startTime = System.nanoTime();
 
@@ -66,7 +66,7 @@ public class Engine {
                 System.err.printf("...halting at address: 0x%04X\n", cpu.get(CPU.PC)-1);
                 cpu.haltCPU();
                 break;
-            // case HCF:
+            // case HCF: // HCF -> HALT AND CATCH FIRE
             //     System.err.println("...halt and catch fire...");
             //     cpu.haltCPU();
             //     System.err.println("...what's that smell?...");
@@ -183,6 +183,8 @@ public class Engine {
 
     }
 
+    // each of these "does" the actual code to implement each OpCode/Instruction
+    // cpu is the main register/memory object
     private void bitwiseXor(int arg1, int arg2, int arg3) {
         cpu.set(arg1, cpu.get(arg2) ^ cpu.get(arg3));
     }

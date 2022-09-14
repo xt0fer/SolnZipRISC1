@@ -3,6 +3,10 @@ package rocks.zipcode;
 import java.util.HashMap;
 import java.util.Map;
 
+// This is the Instruction Set file. This ENUM holds each of the
+// Instruction (a string) to an OpCode (an int)
+// lookupTable is the Map from Instruction(key) to OpCode(value)
+//
 public enum ISA {
     // opcodes - Instruction Set
     // - HLT | 0000 | halt.
@@ -92,11 +96,11 @@ public enum ISA {
         this.opcode = opcode;
     }
 
-    private static final Map<Integer, ISA> lookup = new HashMap<Integer, ISA>();
+    private static final Map<Integer, ISA> lookupTable = new HashMap<Integer, ISA>();
 
     static {
         for (ISA d : ISA.values()) {
-            lookup.put(d.getOpcode(), d);
+            lookupTable.put(d.getOpcode(), d);
         }
     }
 
@@ -104,7 +108,7 @@ public enum ISA {
         return this.opcode;
     }
     public static ISA getISA(int v){
-        return lookup.get(v);
+        return lookupTable.get(v);
     }
 
     //public abstract String getOutputFormat();

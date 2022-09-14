@@ -11,6 +11,7 @@ The input is handled:
 
 - read in the line
 - matchit to one of three possible line patterns
+  - directive, label or instruction
 - depending on the match
   - treat it as a directive
   - treat it as a label
@@ -23,7 +24,7 @@ The input is handled:
   - step thru the instruction list
   - examine instruction for missing forward references
   - resolve all forward references to labels
-  - output the instruction
+  - output the instruction list
 
 The basic idea is that it reads in each line of the input file and attempts to sort the line into one of three patterns:
 

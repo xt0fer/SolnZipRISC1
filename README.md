@@ -408,6 +408,7 @@ The a microcode evaluator has several parts:
 - Simulator class - which executes the simulation
 - Word class - the model for the memory locations.
   - note that the memory is only word-based (32bit quantities), NOT byte addressable
+  - this *may* make **Strings** had to implement? or no?
 
 load a .zas file into memory and start execution at 0x0000.
 A common thing to do is to load 0x0000 with a `BRA aa` which allows for data to be loaded into low memory locations. `aa` would be a label like "start" or "main" where the actual code is.
